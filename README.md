@@ -1,2 +1,2 @@
 # mvpt
-SEM multiverse path test
+Simulations and application for an SEM multiverse path test
