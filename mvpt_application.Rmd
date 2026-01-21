@@ -1,0 +1,506 @@
+---
+title: "TITLE: MVPT Application"
+author: "Ron, Ed, Wolfgang"
+date: "2025-Dec"
+toc: TRUE
+output: pdf_document
+---
+
+# Basic Set-up
+
+All the needed libraries are pulled in through source(mvpt.R), including a new version of mvpt() with model auto-generation built-in. Only a lavaan model, path, and dataset are needed for mvpt(). Current and future datasets should lend themselves to SEM application, excluding LVs and covariances for now (because the current code cannot yet operate with lavaan "=~" and "~~" notation).
+
+```{r setup, include=FALSE}
+
+#### Libraries, etc ####
+
+install.packages("mvpt", repos = NULL, type = "source")
+library(mvpt)
+library(lavaan)
+
+#### Application datasets ####
+
+## NOTE: Complete datasets only
+
+## 1: Resource inequality, rumination, and retaliatory aggression STUDY-2
+RRR2 <- haven::read_sav("DATA/RRR2.sav") ## none SPSS version pending    
+RRR2$RI <- as.numeric(RRR2$RIType)             
+RRR2$RT <- as.numeric(RRR2$RumiType)  
+RRR2 <- RRR2[which(RRR2$RT==1 & RRR2$RI==1 ), ] 
+RRR2$RA <- RRR2$R5 - RRR2$RI*8 - 1; RRR2$RA[RRR2$RA < 0] <- 0 ## using "-1" offset AND zeroing any negatives
+RRR2 <- RRR2[which(RRR2$Suspi_RC<4 & RRR2$Probs_RC<4), ]  
+RRR2 <- RRR2[complete.cases(RRR2[c("fair1", "fair2", "anger1", "anger2", "rumi2", "rumi3", "RA")]), 
+             c("fair1", "fair2", "anger1", "anger2", "rumi2", "rumi3", "RA")] ## subsetting complete cases only
+RRR2$fair1 <- 8-RRR2$fair1  ## reverse coding one item
+RRR2$UA <- (RRR2$fair1 + RRR2$fair2) / 2 
+RRR2$SA <- (RRR2$anger1 + RRR2$anger2) / 2 
+RRR2$SR <- (RRR2$rumi2 + RRR2$rumi3) / 2 ## now only using 2 items (due to RRR2 EFA)
+RRR2[, c("UA", "SA", "SR", "RA")] <- as.data.frame(scale(RRR2[, c("UA", "SA", "SR", "RA")]))
+colnames(RRR2)[match(c("UA", "SA", "SR", "RA"), colnames(RRR2))] <- c("unfair", "anger", "rumi", "agg")
+
+## 2: Workburnout among elementary school teachers
+load("DATA/burnout.rda")
+## Getting composite measure to avoid LV usage
+burnout$RAc <-  (burnout$RA1 + burnout$RA2) / 2
+burnout$RCc <-  (burnout$RC1 + burnout$RC2 + burnout$WO1 + burnout$WO2) / 4
+burnout$CCc <-  (burnout$CC1 + burnout$CC2 + burnout$CC3 + burnout$CC4) / 4
+burnout$DMc <-  (burnout$DM1 + burnout$DM2) / 2
+burnout$SSc <-  (burnout$SS1 + burnout$SS2) / 2
+burnout$PSc <-  (burnout$PS1 + burnout$PS2) / 2
+burnout$SEc <-  (burnout$SE1 + burnout$SE2 + burnout$SE3) / 3
+burnout$ELCc <- (burnout$ELC1 + burnout$ELC2 + burnout$ELC3 + burnout$ELC4 + burnout$ELC5) / 5
+burnout$EEc <-  (burnout$EE1 + burnout$EE2 + burnout$EE3) / 3
+burnout$DPc <-  (burnout$DP1 + burnout$DP2) / 2
+burnout$PAc <-  (burnout$PA1 + burnout$PA2 + burnout$PA3) / 3
+
+
+```
+
+
+
+# Testing MEC boundaries via simulation
+
+For a given DAG, it is difficult to predict how large of a MEC it can produce. From a user's point-of-view, simple model specifications could often generate larger the expected MECs. However, unexpected to users, previous results have shown that complex models can actually yield small MECs, even MECs with just the entered model as the only member--orphan models. This is still not well understood and can have numerous effects on the sensitivity of our test.
+
+To begin exploring, though the number of ways in which a user can specify a 3-variable SEM are few, it makes sense that the possibilities quickly balloon as the number of variables grows. Below is preliminary work using dagitty functions to generate random DAGs, then using those random DAGs to generate MEC families. This is done for random DAGs of 3, 4, and 5 variables (using two helper functions).
+
+```{r simu}
+
+## FUNCTION: Learn over nreps about a random DAG's MEC family
+randDAGfam <- function(nreps, DAG_size, p){
+  randDAG_MEC <- list()
+  randDAG_MEC_length <- vector() 
+  for (i in 1:nreps) {
+    randDAG <- randomDAG(DAG_size, p)
+    randDAG_MEC[[i]] <- equivalentDAGs(randDAG) ## randDAG's MEC always first on list of lists 
+    randDAG_MEC_length[i] <- length(randDAG_MEC[[i]]) ## each MEC crunched to one positive integer
+  }
+  list(randDAG_MEC=randDAG_MEC, randDAG_MEC_length=randDAG_MEC_length) 
+}
+
+## FUNCTION: Isolate MEC's of a given size and plot all member DAGs once (almost once) 
+seg_n_plot <- function(randDAG_MEC, randDAG_MEC_length, MEC_size){
+  listlists <- randDAG_MEC[randDAG_MEC_length==MEC_size]
+  list <- unlist(listlists, recursive = FALSE)
+  keep <- !duplicated(list)
+  sub_list <- list[keep]
+  for (i in 1:length(sub_list)) {
+    sub_list[[i]] <- graphLayout(sub_list[[i]])  
+  }
+  invisible(lapply(sub_list, plot))
+}
+
+#### Exploring MEC sizes for random DAGs of 3, 4, and 5 variables ####
+
+## Global values for series of simulations
+nreps=20 ## sufficient to hit max MEC size in all scenarios
+p=.50 ## 50% chance of a path being drawn between variables 
+
+## 3-Variable DAGs 
+DAG_size=3
+LIST <- randDAGfam(nreps, DAG_size, p) 
+randDAG_MEC <- LIST$randDAG_MEC; randDAG_MEC_length <- LIST$randDAG_MEC_length 
+## See distribution of MEC sizes (1 to 6)
+barplot(table(randDAG_MEC_length), main="MEC sizes for random 3-variable DAGs")
+
+## See DAGs that belong to MECs of size one versus max
+#seg_n_plot(randDAG_MEC, randDAG_MEC_length, MEC_size=1)
+#seg_n_plot(randDAG_MEC, randDAG_MEC_length, MEC_size=6)
+
+## 4-Variable DAGs 
+DAG_size=4
+LIST <- randDAGfam(nreps, DAG_size, p) 
+randDAG_MEC <- LIST$randDAG_MEC; randDAG_MEC_length <- LIST$randDAG_MEC_length 
+## See distribution of MEC sizes (1 to 24)
+barplot(table(randDAG_MEC_length), main="MEC sizes for random 4-variable DAGs")
+
+## See DAGs that belong to MECs of size one versus max
+#seg_n_plot(randDAG_MEC, randDAG_MEC_length, MEC_size=1)
+#seg_n_plot(randDAG_MEC, randDAG_MEC_length, MEC_size=24)
+
+## 5-Variable DAGs 
+DAG_size=5
+LIST <- randDAGfam(nreps, DAG_size, p) 
+randDAG_MEC <- LIST$randDAG_MEC; randDAG_MEC_length <- LIST$randDAG_MEC_length ## max(randDAG_MEC_length)
+## See distribution of MEC sizes  (1 to 100)
+barplot(table(randDAG_MEC_length), main="MEC sizes for random 5-variable DAGs")
+
+## See DAGs that belong to MECs of size one versus max
+#seg_n_plot(randDAG_MEC, randDAG_MEC_length, MEC_size=1)
+#seg_n_plot(randDAG_MEC, randDAG_MEC_length, MEC_size=100)
+
+```
+Simulation results showed two patterns. First pattern: Surprisingly complex DAGs can sometimes produce no other family. Inspecting these DAGs to look for the graphical features to explain this, following the (i) same skeleton and (ii) v-structure rules, reveals that no changes are possible, meaning no possible family members can actually be produced. Second pattern: Beyond the obvious exponential growth in MECs as the number of variables grows, the DAGs that produce the biggest MEC families are "complete" DAGs in which all variables are connected to all other variables. The size of a MEC based on a complete DAG is always highest, and well past the second highest MEC size.
+
+Given the simulation results (particularly the long list of DAGs that were not printed), it seems very likely that users may occasionally, unknowingly specify models that produce no MEC family for comparison, and thus no test statistic. And it's also unlikely that a user may need a model represented by a complete DAG. Overall, I am feeling confident that users will likely not find themselves overwhelmed with alternate model suggestions. 
+
+To probe further, I also specify some specific models I gathered during the 5-variable DAG simulation. Though each of the following is a 5-variable model test, MEC families will be expected to vary in size.
+
+# Testing MEC boundaries via simulation (CONT.)
+
+```{r minmax}
+
+#### Testing a model with a SMALL MEC family ####
+
+## Orphan model (no MEC expected), simulated data, and test
+LAV <-
+  "
+  X2 ~ X1 + X3
+  X4 ~ X2 + X3
+  X5 ~ X4
+  "
+SIM <-
+  "
+  X2 ~ (1.00)*X1 + (1.00)*X3
+  X4 ~ (1.00)*X2 + (1.00)*X3
+  X5 ~ (1.00)*X4
+  "
+data <- simulateData(model=SIM, sample.nobs=500)
+mvpt(LAV, path="X2~X1", data)
+
+#### Testing a model with a MEDIUM MEC family ####
+
+## More typical model, simulation, and test of all paths
+LAV <- 
+  "
+  X1 ~ X2 + X4
+  X2 ~ X4
+  X3 ~ X1
+  X5 ~ X3
+  "
+SIM <-
+  "
+  X1 ~ (1.00)*X2 + (1.00)*X4
+  X2 ~ (1.00)*X4
+  X3 ~ (1.00)*X1
+  X5 ~ (1.00)*X3
+  "
+data <- simulateData(model=SIM, sample.nobs=500)
+mvpt(LAV, path="X1~X2", data, showplots=TRUE) ## 3 models, sig
+mvpt(LAV, path="X1~X4", data, showplots=TRUE) ## 3 models, sig
+mvpt(LAV, path="X2~X4", data, showplots=TRUE) ## 5 models, sig
+mvpt(LAV, path="X3~X1", data, showplots=TRUE) ## 6 models, non
+mvpt(LAV, path="X5~X3", data, showplots=TRUE) ## 8 models, non
+
+#### Testing a model with a LARGE MEC family ####
+
+## Complete DAG, belonging to a family of size 100; X1->X2->X3->X4->X5
+LAV <- 
+  "
+  X2 ~ X1
+  X3 ~ X2 + X1
+  X4 ~ X3 + X2 + X1
+  X5 ~ X4 + X3 + X2 + X1
+  "
+SIM <-
+  "
+  X2 ~ (1.00)*X1
+  X3 ~ (1.00)*X2 + (1.00)*X1
+  X4 ~ (1.00)*X3 + (1.00)*X2 + (1.00)*X1
+  X5 ~ (1.00)*X4 + (1.00)*X3 + (1.00)*X2 + (1.00)*X1
+  "
+data <- simulateData(model=SIM, sample.nobs=500)
+test <- mvpt(LAV, path="X2~X1", data) ## just one path test for example; 60 models here, sig
+test
+mvptZoom(test, M=1)
+mvptZoom(test, M=7)
+mvptZoom(test, M=13)
+
+
+```
+Overall, the results for these three non-random models was as expected. The SMALL example showed how easily a one-member MEC could happen. The MEDIUM example was more realistic and produced a MEC family of sufficient size to make individual path testing interesting. Though the entered model here has data simulated from it, meaning perfect fit, MVP test results still suggested three paths that significantly changed and two that did not. The LARGE example, as expected, produced the biggest MEC of the trio, which meant that individual path tests could have bigger sets of models to test across (limited to only one path test to save page space). Furthermore, for this LARGE family, all paths tested significant (not shown), indicating some heightened sensitivity for complete DAGs. For follow-up (also not shown), I ran complete 3- and 4-variable DAGs too, and all significant too.
+
+
+# APPLICATION 1
+
+Using the resource inequality, rumination, and retaliatory aggression dataset (standardized), application of the MVP test was segmented as follows. First, the MVP test was applied to all three path in a basic mediation model depicting the effect of unfairness on rumination, mediated by anger. Second, the test was applied to a second mediation model depicting the effect of anger on retaliation, mediated by rumination. Third, the test was also applied to all paths in a two-mediator model that contains the previous two. 
+
+```{r APP1}
+
+
+#### Mediation 1: unfair->anger->rumi ####
+
+model_medi1 <- 
+  '
+  rumi ~ unfair + anger
+  anger ~ unfair
+  '
+mvpt(LAV=model_medi1, path="rumi~unfair", data=RRR2, showplots=TRUE) ## p=.006
+mvpt(model_medi1, path="anger~unfair", data=RRR2, showplots=TRUE)## p=.011
+mvpt(model_medi1, path="rumi~anger", data=RRR2, showplots=TRUE) ## p=.227
+## Follow-up functions
+MVP <- mvpt(LAV=model_medi1, path="rumi~unfair", data=RRR2, showplots=TRUE)
+MVP
+mvptZoom(MVP, M=3)
+mvptRank(MVP, top=2)
+
+#### Mediation 2: anger->rumi->anger ####
+
+model_medi2 <-
+  '
+  agg ~ anger + rumi
+  rumi ~ anger
+  '
+mvpt(model_medi2, path="agg~anger", data=RRR2, showplots=TRUE) ## p=.115
+mvpt(model_medi2, path="rumi~anger", data=RRR2, showplots=TRUE) ## p=.938
+mvpt(model_medi2, path="agg~rumi", data=RRR2, showplots=TRUE) ## p=.238
+
+
+#### Full mediation from unfair->anger->rumi->agg (diamond shaped) ####
+
+model <-
+  '
+  agg ~ anger + rumi
+  rumi ~ anger + unfair
+  anger ~ unfair
+  '
+mvpt(model, path="rumi~unfair", data=RRR2, showplots=TRUE) ## p=.006
+mvpt(model, path="anger~unfair", data=RRR2, showplots=TRUE) ## p=.011
+mvpt(model, path="rumi~anger", data=RRR2, showplots=TRUE) ## p=.543
+mvpt(model, path="agg~anger", data=RRR2, showplots=TRUE) ## p=.633
+mvpt(model, path="agg~rumi", data=RRR2, showplots=TRUE) ## p=.824
+
+```
+Results for the first mediation (unfair->anger->rumi) showed that the direct effect of unfairness on rumination significantly varied. If the original theory were adjusted so that anger was no longer a mediator, but a confounder, there would be a direct effect increase (.16 -> .43). Ignoring this suggestion and assuming anger as a mediator, results showed the first leg of the indirect effect significantly shrank, based on either reversing the path from anger to rumination or by another less logical change. Overall, only the direct effect from unfairness to rumination seemed meaningfully sensitive to model specification change: anger is thought to motivate rumination, but rumination does motive anger too. 
+
+The second mediation (anger->rumi->agg) showed no path differences according to MVP test results. Interestingly, because the underlying DAG for this mediation is the same, tests for each path consisted of the same model comparisons as above, just with different variables. However, no model changes appeared to make a difference to path values here.
+
+For the two-mediator model from unfairness to retaliation, test results appeared to summarize the above: Out of seven possible paths, the same two paths from the first mediation were the only ones that varied. Overall, the significant change appears to come down to reversing the path from anger to rumination, so that rumination predicts anger. Theory states that we feel faster than we think, meaning anger should predict rumination, BUT this reversal still makes theoretical sense and might have something to do with how the study was designed (both are survey measures, and self-reports of emotion do require thinking; I'll have to revisit my causal mediation results with Wolfgang and company).
+
+
+# APPLICATION 2
+
+The work burnout data by Byrne (2012), which consists of three core variables--emotional exhaustion (EE), depersonalization (DP), and personal accomplishment (PA)--and many other peripheral variables, was used in two ways. First, the data was used to attempt replication of my IMPS24 results. Second, the data was then used to test the originally hypothesized model by Byrne. (Because LV syntax cannot currently be processed by mvpt.R, variables here are composite of items.)  
+
+```{r APP2}
+
+#### Using IMPS24 work burnout model and data subset (but no LVs) ####
+
+IMPS24 <- 
+  "
+  SEc ~ DMc
+  PAc ~ DPc
+  DPc ~ EEc
+  DMc ~ ELCc
+  PAc ~ ELCc
+  EEc ~ SEc
+  PAc ~ SEc
+  "
+set.seed(2456789) 
+burnout_sub <- burnout[sample(1:nrow(burnout), 120), ]
+## Sole path presented at IMPS24
+mvpt(LAV=IMPS24, path="PAc~SEc", data=burnout_sub) ## 5 models (p=1), all w paths of 0.66
+## Testing all other paths
+mvpt(LAV=IMPS24, path="PAc~ELCc", data=burnout_sub) ## 5 models again (p=1)
+mvpt(LAV=IMPS24, path="DMc~ELCc", data=burnout_sub) ## 1 model, and thus early exit
+mvpt(LAV=IMPS24, path="SEc~DMc", data=burnout_sub) ## 2 models (p=1)
+mvpt(LAV=IMPS24, path="EEc~SEc", data=burnout_sub) ## 3 models (p=1)
+mvpt(LAV=IMPS24, path="DPc~EEc", data=burnout_sub) ## 4 models (p=1)
+mvpt(LAV=IMPS24, path="PAc~DPc", data=burnout_sub) ## 5 models (p=1)
+
+#### Testing originally hypothesized model by Byrne ####
+
+Model1 <- 
+  "
+  PAc ~ RAc + DPc + EEc + SEc + ELCc
+  DPc ~ EEc + CCc + RCc 
+  EEc ~ RCc + CCc + SEc
+  SEc ~ DMc + SSc + PSc
+  ELCc ~ SEc + DMc
+  "
+## Testing one path, since this is apparently an orphan model
+mvpt(LAV=Model1, path="PAc~EEc", data=burnout) 
+
+
+```
+For the IMPS24 presentation, I used dagitty to find alternate models, but I then specified and fit them myself since there was no automation yet. The one path test I presented at IMPS24 was no longer significant, but this may have been because of a faulty item that became irrelevant when using composite scores. All other paths also showed no estimation changes, despite the alternate models available. 
+
+The originally hypothesized model by Byrne is actually an orphan model. I had forgotten about this. It's not an atypical SEM but I suspect it's the extra exogenous variables that prevent auto-generation.
+
+
+# APPLICATION 3
+
+```{r APP3}
+
+## WVS dataset
+
+
+
+```
+
+
+
+# Miscellaneous
+
+```{r misc, eval=FALSE}
+
+
+#### 1. Using dagitty to check conditional independencies and using dagwood to see causal assumptions ####
+
+##### X->Y with unrelated Z #####
+
+## Visualizing DAG and checking for conditional independencies
+DGM <- dagitty(x = "dag{X->Y; Z}") 
+plot(DGM)
+impliedConditionalIndependencies(DGM) ## as expected, X_||_Z and X_||_Y
+## Generate alt models (branches)  
+XY.dagwood <- dagwood("X->Y; Z", exposure="X", outcome="Y")
+branch.DAGs <-XY.dagwood$DAGs.branch ## 2 only
+## Visualizing all alt models
+length(branch.DAGs$DAG.branch.candidate)
+ggdag(branch.DAGs$DAG.branch.candidate[1], text_col=4, node=FALSE) + theme_dag()
+ggdag(branch.DAGs$DAG.branch.candidate[2], text_col=4, node=FALSE) + theme_dag()
+
+##### X, Y, Z mediation triangle #####
+
+## Visualizing DAG and checking for conditional independencies
+DAG <- dagitty(x = "dag{X->Z->Y; X->Y}")
+plot(DAG)
+impliedConditionalIndependencies(DAG) ## nothing, as expected
+## Generating branches 
+XY.dagwood <- dagwood("X->Z->Y; X->Y", exposure="X", outcome="Y")
+branch.DAGs <-XY.dagwood$DAGs.branch
+## Visualizing all alt models 
+length(branch.DAGs$DAG.branch.candidate)
+ggdag(branch.DAGs$DAG.branch.candidate[1], text_col=4, node=FALSE) + theme_dag()
+ggdag(branch.DAGs$DAG.branch.candidate[2], text_col=4, node=FALSE) + theme_dag()
+ggdag(branch.DAGs$DAG.branch.candidate[3], text_col=4, node=FALSE) + theme_dag()
+ggdag(branch.DAGs$DAG.branch.candidate[4], text_col=4, node=FALSE) + theme_dag()
+ggdag(branch.DAGs$DAG.branch.candidate[5], text_col=4, node=FALSE) + theme_dag()
+
+#### 2. Checking for validity of equal SEM fit indices across a equivalence class family
+
+## Whole family of basic X, Y, Z, mediation in Model 1 (AS IN DISSERTATION)
+Model1 <-
+  '
+  Y ~ a*X + c*Z
+  Z ~ b*X
+  '
+Model2 <-
+  '
+  Y ~ a*X + c*Z
+  X ~ b*Z
+  '
+Model3 <-
+  '
+  Y ~ a*X 
+  Z ~ b*X + c*Y
+  '
+Model4 <-
+  '
+  X ~ a*Y
+  Z ~ b*X + c*Y
+  '
+Model5 <-
+  '
+  X ~ a*Y + b*Z
+  Y ~ c*Z
+  '
+Model6 <-
+  '
+  X ~ a*Y + b*Z
+  Z ~ c*Y
+  '
+
+## Simulating based on any 1 of the above models (not using RRR1 data yet)
+SIMU <- simulateData(sample.nobs=500, model=Model5) 
+
+## Fitting all 6 family models to SIMU
+## NOTE: Need to allow X to vary so that it remains part of the likelihood distribution (ie: not treating as exogenous)
+Model1.fit <- sem(model=Model1, data=SIMU, fixed.x=FALSE)
+Model2.fit <- sem(model=Model2, data=SIMU, fixed.x=FALSE)
+Model3.fit <- sem(model=Model3, data=SIMU, fixed.x=FALSE)
+Model4.fit <- sem(model=Model4, data=SIMU, fixed.x=FALSE)
+Model5.fit <- sem(model=Model5, data=SIMU, fixed.x=FALSE)
+Model6.fit <- sem(model=Model6, data=SIMU, fixed.x=FALSE)
+
+## Seeing fit indices
+round(fitMeasures(Model1.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+round(fitMeasures(Model2.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+round(fitMeasures(Model3.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+round(fitMeasures(Model4.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+round(fitMeasures(Model5.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+round(fitMeasures(Model6.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+
+
+##### 3. Checking for possible change in fit if LVs are included (move to mvpt.R eventually)
+
+Model1 <-
+  '
+  SR_lv ~ UA_lv + SA_lv
+  SA_lv ~ UA_lv
+  ## latent variables
+  UA_lv  =~ fair1 + fair2
+  SA_lv  =~ anger1 + anger2
+  SR_lv  =~ rumi2 + rumi3
+  '
+Model2 <-
+  '
+  SR_lv ~ UA_lv + SA_lv
+  UA_lv ~ SA_lv
+  ## latent variables
+  UA_lv  =~ fair1 + fair2
+  SA_lv  =~ anger1 + anger2
+  SR_lv  =~ rumi2 + rumi3
+  '
+Model3 <-
+  '
+  SR_lv ~ UA_lv
+  SA_lv ~ UA_lv + SR_lv
+  ## latent variables
+  UA_lv  =~ fair1 + fair2
+  SA_lv  =~ anger1 + anger2
+  SR_lv  =~ rumi2 + rumi3
+  '
+## Fitting all 6 family models to SIMU
+Model1.fit <- sem(model=Model1, data=RRR2, fixed.x=FALSE)
+Model2.fit <- sem(model=Model2, data=RRR2, fixed.x=FALSE)
+Model3.fit <- sem(model=Model3, data=RRR2, fixed.x=FALSE)
+## Seeing fit indices
+round(fitMeasures(Model1.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+round(fitMeasures(Model2.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+round(fitMeasures(Model3.fit)[c(3, 9, 10, 19, 20, 23)], 2)
+
+
+
+
+
+
+
+
+
+##### 4. EXPLORING ADDITIONAL DAGITTY FEATURES #####
+
+equivalenceClass("dag{X->Z->Y; X->Y}") ## getting the pdag
+
+equivalentDAGs("dag{X->Z->Y; X->Y}") ## getting full equiv class for sample model
+
+instrumentalVariables( "dag{ i->x->y; x<-M->y }", "x", "y" ) ## finding IV "i" in a sample model
+
+plotLocalTestResults(localTests( "dag{ X -> {M1 M2} -> Y }", simulateSEM("dag{X->{U1 M2}->Y U1->M1}"), "cis" )) ## not too sure yet
+
+plotLocalTestResults(localTests( "dag{ X -> {M1 M2} -> Y }", simulateSEM("dag{X->{M1 M2}->Y }"), "cis" )) ## not too sure yet
+
+
+
+
+
+
+
+
+##### 5. EXPLORING ADDITIONAL DAGWOOD FEATURES #####
+
+## Nothing to report at the moment bc model auto-generation could be done by dagitty. The dagwood may be useful, however, in generating models with unobserved confounders.
+
+
+
+
+
+
+
+
+
+```
+
+
+

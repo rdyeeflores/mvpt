@@ -1,0 +1,31 @@
+Package: mvpt
+Type: Package
+Title: SEM Multiverse Path Test
+Version: 1.0-0
+Date: 2026-01-17
+Authors@R: c(
+    person(given = "Ronald", family = "Yee-Flores",
+           role = c("aut", "cre"),
+           email = "ronald.flores@missouri.edu",
+           comment = c(ORCID = "0000-0002-7423-1608")),
+    person(given = "Edgar", family = "Merkle",
+           role = "aut",
+           email = "merklee@missouri.edu",
+           comment = c(ORCID = "0000-0001-7158-0653"))
+  )
+Description: Test a single SEM path for significant change in estimation value across a set of automatically generated SEMs. References: Yee-Flores & Merkle (in review).
+Imports:
+    lavaan,
+    dagitty,
+    ggplot2,
+    grid,
+    stats,
+    clubSandwich,
+    ggdag,
+    ggraph,
+    patchwork,
+    sandwich
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.3.3
