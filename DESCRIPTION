@@ -25,6 +25,10 @@ Imports:
     ggraph,
     patchwork,
     sandwich
+Suggests:
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true

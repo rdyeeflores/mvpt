@@ -3,3 +3,4 @@
                       fields="Version")
   packageStartupMessage("This is ",paste(pkgname, version))
 }
+utils::globalVariables(c("x", "y", "xend", "yend", "name"))

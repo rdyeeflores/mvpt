@@ -243,34 +243,39 @@ VW_core <- function(SEMfitted_list, path){
 #' 
 #' Given a model and path in lavaan syntax, plus data frame, this function auto-generates other models with the same path, fits each one, and tests for path values differences.
 #' 
-#' @param LAV A pre-fitted SEM in lavaan syntax
-#' @param path The SEM path to be tested, also in lavaan syntax
-#' @param data A data frame to fit the given SEM 
-#' @param showplots Whether to show a figure containing all auto-generated SEMs 
-#' @param na.action SEM option
-#' @param subset SEM option
-#' @param varcov SEM option
-#' @param n SEM option
-#' @return An object of class \code{mvpt} containing...
+#' @param lavaan_model A pre-fitted SEM in lavaan syntax. 
+#' @param path The path to be tested with the given SEM. This must also be in lavaan syntax (eg: Y~X).
+#' @param data A data frame to fit the given SEM, and all others that may be auto-generated. 
+#' @param showplots Whether to show a figure containing all the compared SEMs (The given model is always first). This figure is free of path values and meant for quick inspection of model specification differences. 
+#' @param na.action lavaan option
+#' @param subset lavaan option
+#' @param varcov lavaan option
+#' @param n lavaan option
+#' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components. 
 #' @examples
-#' # example code
 #' \dontrun{
-#' library(lavaan)
-#' dat <- lavaan::HolzingerSwineford1939
-#' LAV <- "visual  =~ x1 + x2 + x3
-#'         textual =~ x4 + x5 + x6
-#'         speed   =~ x7 + x8 + x9
-#'         visual  ~ textual"
-#' path <- "visual ~ textual"
-#' out <- mvpt(LAV = LAV, path = path, data = dat)
-#' out}
+#' data(PoliticalDemocracy, package = "lavaan")
+#' lavaan_model <- 
+#'   "
+#'   ## regressions
+#'   dem60 ~ ind60
+#'   dem65 ~ ind60 + dem60
+#'   ## latent variables
+#'   ind60 =~ x1 + x2 + x3
+#'   dem60 =~ y1 + a*y2 + b*y3 + c*y4
+#'   dem65 =~ y5 + a*y6 + b*y7 + c*y8
+#'   "
+#' path <- "dem60 ~ ind60"
+#' data <- PoliticalDemocracy
+#' output <- mvpt(lavaan_model, path, data)
+#' output}
 #' @export
-mvpt <- function(LAV, path, data, 
+mvpt <- function(lavaan_model, path, data, 
                  showplots=FALSE,
                  na.action=na.omit, subset=NULL, varcov = NULL, n = NULL){
   
   ## STOP: User inputs are in wrong format
-  fit_try <- try(sem(LAV, data=data, do.fit=FALSE), silent = TRUE)
+  fit_try <- try(sem(lavaan_model, data=data, do.fit=FALSE), silent = TRUE)
   if (inherits(fit_try, "try-error")) {
     stop("Invalid lavaan model syntax:\n", fit_try)
   }
@@ -278,7 +283,7 @@ mvpt <- function(LAV, path, data,
     stop("The path must be a single character string like 'y ~ x'.")
   }
   
-  dagu <- dagu(LAV, path)
+  dagu <- dagu(lavaan_model, path)
   if(is.null(dagu)){ return(invisible(NULL)) }
   
   ## FIGURE_list to house all model ggdag figures
@@ -312,26 +317,25 @@ mvpt <- function(LAV, path, data,
 }
 
 
-#' See MVP Test Results for a Single Model
+#' View Single Model
 #' 
-#' Follow-up function to see figure and lavaan results for a user-specified model.
+#' Follow-up function to see figure and lavaan results for a single model.
 #' 
-#' @param output Output from using mvpt function
-#' @param M Model index  
+#' @param mvpt_output Output from using mvpt() function.
+#' @param index Model index for list of compared model, both given and auto-generated. Model 1 is always the given model.
 #' @return An object of class...
 #' @examples
-#' # example code
 #' \dontrun{
-#' out <- mvpt(LAV = LAV, path = path, data = dat)
-#' mvptZoom(out, M = 5)}
+#' mvpt_output <- mvpt(lavaan_model, path, data)
+#' mvptZoom(mvpt_output, index = 5)}
 #' @export
-mvptZoom <- function(output, M){
+mvptZoom <- function(mvpt_output, index){
   
-  FIGURE_list <- output[[1]]
-  SEMfitted_list <- output[[2]]
+  FIGURE_list <- mvpt_output[[1]]
+  SEMfitted_list <- mvpt_output[[2]]
   
-  list(FIGURE_list[[M]], 
-       summary(SEMfitted_list[[M]], standardized = TRUE))
+  list(FIGURE_list[[index]], 
+       summary(SEMfitted_list[[index]], standardized = TRUE))
   
 }
 
@@ -339,20 +343,19 @@ mvptZoom <- function(output, M){
 
 #' Rank Models by Path Value 
 #' 
-#' Follow-up function to rank and view models with largest path values.
+#' Follow-up function to rank and view models with largest path values (updated rank by absolute value pending).
 #' 
-#' @param output Output from using mvpt function
-#' @param top Number of top models to include  
+#' @param mvpt_output Output from using mvpt() function.
+#' @param top Number of top models to include in report.  
 #' @return An object of class...
 #' @examples
-#' # example code
 #' \dontrun{
-#' out <- mvpt(LAV = LAV, path = path, data = dat)
-#' mvptRank(out, top = 3)}
+#' mvpt_output <- mvpt(lavaan_model, path, data)
+#' mvptRank(mvpt_output, top = 3)}
 #' @export
-mvptRank <- function(output, top){
+mvptRank <- function(mvpt_output, top){
   
-  CORE_comp <- output[[3]]
+  CORE_comp <- mvpt_output[[3]]
   x <- CORE_comp$sharedparamvals
   x_top <- sort(x, decreasing = TRUE)[seq_len(top)]
   x_top
