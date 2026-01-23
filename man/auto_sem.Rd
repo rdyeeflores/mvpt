@@ -2,7 +2,7 @@
 % Please edit documentation in R/mvpt.R
 \name{auto_sem}
 \alias{auto_sem}
-\title{Model Auto-fitting (Internal)}
+\title{SEM Auto-fitting (Internal)}
 \usage{
 auto_sem(
   subMEC_lavaan_ready,
@@ -30,6 +30,6 @@ auto_sem(
 A lavaan-fitted model list
 }
 \description{
-Takes lavaan ready list and fits all with same basic settings, then produces fitted list. Not passing sem() arguments yet, and assumes complete data.
+Takes a lavaan ready list of models and fits all with same basic settings, then produces a fitted list. Not passing sem() arguments yet, and assumes complete data.
 }
 \keyword{internal}

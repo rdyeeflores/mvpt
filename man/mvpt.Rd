@@ -18,11 +18,11 @@ mvpt(
 \arguments{
 \item{lavaan_model}{A pre-fitted SEM in lavaan syntax.}
 
-\item{path}{The path to be tested with the given SEM. This must also be in lavaan syntax (eg: Y~X).}
+\item{path}{The path to be tested within the given SEM. This must also be in lavaan syntax (eg: Y~X).}
 
 \item{data}{A data frame to fit the given SEM, and all others that may be auto-generated.}
 
-\item{showplots}{Whether to show a figure containing all the compared SEMs (The given model is always first). This figure is free of path values and meant for quick inspection of model specification differences.}
+\item{showplots}{Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first. This figure is for quick inspection of model specification differences.}
 
 \item{na.action}{lavaan option}
 
@@ -36,7 +36,7 @@ mvpt(
 An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components.
 }
 \description{
-Given a model and path in lavaan syntax, plus data frame, this function auto-generates other models with the same path, fits each one, and tests for path values differences.
+Using a pre-fitted SEM and single path within that SEM, both in lavaan syntax, this function auto-generates other models with the same single path, though with differing relationships between other specified variables. This function then uses the supplied data to fit all models, followed by a test across models for significant value differences in the specified path.
 }
 \examples{
 \dontrun{

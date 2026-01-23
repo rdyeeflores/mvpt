@@ -2,23 +2,21 @@
 % Please edit documentation in R/mvpt.R
 \name{mvptRank}
 \alias{mvptRank}
-\title{Rank Models by Path Value}
+\title{mvpt() Follow-up: Rank Models by Path Value}
 \usage{
-mvptRank(mvpt_output, top)
+mvptRank(mvpt_output)
 }
 \arguments{
 \item{mvpt_output}{Output from using mvpt() function.}
-
-\item{top}{Number of top models to include in report.}
 }
 \value{
 An object of class...
 }
 \description{
-Follow-up function to rank and view models with largest path values (updated rank by absolute value pending).
+Follow-up function to rank and view all models by path value.
 }
 \examples{
 \dontrun{
 mvpt_output <- mvpt(lavaan_model, path, data)
-mvptRank(mvpt_output, top = 3)}
+mvptRank(mvpt_output)}
 }

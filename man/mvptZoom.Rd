@@ -2,7 +2,7 @@
 % Please edit documentation in R/mvpt.R
 \name{mvptZoom}
 \alias{mvptZoom}
-\title{View Single Model}
+\title{mvpt() Follow-up: View Single Model}
 \usage{
 mvptZoom(mvpt_output, index)
 }
@@ -15,7 +15,7 @@ mvptZoom(mvpt_output, index)
 An object of class...
 }
 \description{
-Follow-up function to see figure and lavaan results for a single model.
+Follow-up function to see figure and lavaan results for a single SEM.
 }
 \examples{
 \dontrun{

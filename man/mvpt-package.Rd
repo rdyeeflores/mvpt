@@ -3,10 +3,9 @@
 \docType{package}
 \name{mvpt-package}
 \alias{mvpt-package}
-\title{mvpt: SEM Multiverse Path Test}
+\title{mvpt: Multiverse Path Test}
 \description{
-Sensitivity analysis for individual SEM path estimates 
-across multiple automatically generated SEMs.
+For individual path estimates within a larger SEM, this is a sensitivity analysis for the robustness of a single path estimate across multiple, automatically-generated, yet equally-fitting SEMs. Significant path estimation value changes will be traceable to suggested model specification changes.
 }
 \details{
 Main functions are \code{\link{mvpt}},

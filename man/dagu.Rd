@@ -2,7 +2,7 @@
 % Please edit documentation in R/mvpt.R
 \name{dagu}
 \alias{dagu}
-\title{Model Auto-generation DAG Utility (Internal)}
+\title{DAG Utility for Model Auto-generation (Internal)}
 \usage{
 dagu(LAV, path)
 }
@@ -15,6 +15,6 @@ dagu(LAV, path)
 A model list in dagitty and another in lavaan format
 }
 \description{
-Takes one lavaan syntax model and path, auto-generates MEC, then gets subMEC_lavaan_ready.
+Takes one model and path in lavaan syntax, auto-generates the MEC, then gets subMEC_lavaan_ready.
 }
 \keyword{internal}

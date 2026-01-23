@@ -2,7 +2,7 @@
 % Please edit documentation in R/mvpt.R
 \name{print.mvpt}
 \alias{print.mvpt}
-\title{Print an mvpt() object}
+\title{Print User-facing Results from mvpt() Object}
 \usage{
 \method{print}{mvpt}(x, ...)
 }

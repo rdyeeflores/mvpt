@@ -1,7 +1,6 @@
-#' mvpt: SEM Multiverse Path Test
+#' mvpt: Multiverse Path Test
 #'
-#' Sensitivity analysis for individual SEM path estimates 
-#' across multiple automatically generated SEMs.
+#' For individual path estimates within a larger SEM, this is a sensitivity analysis for the robustness of a single path estimate across multiple, automatically-generated, yet equally-fitting SEMs. Significant path estimation value changes will be traceable to suggested model specification changes.   
 #'
 #' @details
 #' Main functions are \code{\link{mvpt}},
@@ -9,20 +8,22 @@
 #'
 "_PACKAGE"
 
-#' @importFrom lavaan sem lavInspect nobs vcov coef
+#' @importFrom lavaan sem lavInspect nobs vcov coef summary
 #' @importFrom dagitty dagitty lavaanToGraph edges graphLayout equivalentDAGs convert
 #' @importFrom ggplot2 ggplot aes
 #' @importFrom stats na.omit pchisq
 #' @importFrom grid unit
 NULL
 
-###############################################################################################
-#### COMPONENT FUNCTIONS
-##############################################################################################
 
-#' Model Auto-generation DAG Utility (Internal)
+#########################################################################################
+#### COMPONENT FUNCTIONS
+########################################################################################
+
+
+#' DAG Utility for Model Auto-generation (Internal)
 #'
-#' Takes one lavaan syntax model and path, auto-generates MEC, then gets subMEC_lavaan_ready.
+#' Takes one model and path in lavaan syntax, auto-generates the MEC, then gets subMEC_lavaan_ready.
 #'
 #' @param LAV A lavaan syntax model
 #' @param path A lavaan syntax path
@@ -98,9 +99,9 @@ dagu <- function(LAV, path){
 }
 
 
-#' Model Auto-fitting (Internal)
+#' SEM Auto-fitting (Internal)
 #'
-#' Takes lavaan ready list and fits all with same basic settings, then produces fitted list. Not passing sem() arguments yet, and assumes complete data.
+#' Takes a lavaan ready list of models and fits all with same basic settings, then produces a fitted list. Not passing sem() arguments yet, and assumes complete data.
 #'
 #' @param subMEC_lavaan_ready A list of pre-fitted SEMs in lavaan syntax
 #' @param data A data frame to fit the given SEM 
@@ -139,6 +140,7 @@ calc_A <- function(SEMfitted){
   chol2inv(chol(tmpvc))
 }
 
+
 #' Calculate Score Contribution Matrix (Internal)
 #'
 #' For a fitted SEM, computes score contribution matrix (sc). 
@@ -149,6 +151,7 @@ calc_A <- function(SEMfitted){
 calc_sc <- function(SEMfitted){
   sandwich::estfun(SEMfitted, remove.duplicated=TRUE)
 }
+
 
 #' Calculate Matrix B (Internal)
 #'
@@ -162,7 +165,6 @@ calc_sc <- function(SEMfitted){
 calc_B <- function(sc1, sc2, n){
   crossprod(sc1, sc2)/n
 }
-
 
 
 #' Calculate Vuong-Wald Core MVP Test Statistic (Internal)
@@ -233,20 +235,19 @@ VW_core <- function(SEMfitted_list, path){
 }
 
 
-
-
 #########################################################################
 #### MAIN FUNCTIONS
 #########################################################################
 
+
 #' Run MVP Test
 #' 
-#' Given a model and path in lavaan syntax, plus data frame, this function auto-generates other models with the same path, fits each one, and tests for path values differences.
+#' Using a pre-fitted SEM and single path within that SEM, both in lavaan syntax, this function auto-generates other models with the same single path, though with differing relationships between other specified variables. This function then uses the supplied data to fit all models, followed by a test across models for significant value differences in the specified path.
 #' 
 #' @param lavaan_model A pre-fitted SEM in lavaan syntax. 
-#' @param path The path to be tested with the given SEM. This must also be in lavaan syntax (eg: Y~X).
+#' @param path The path to be tested within the given SEM. This must also be in lavaan syntax (eg: Y~X).
 #' @param data A data frame to fit the given SEM, and all others that may be auto-generated. 
-#' @param showplots Whether to show a figure containing all the compared SEMs (The given model is always first). This figure is free of path values and meant for quick inspection of model specification differences. 
+#' @param showplots Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first. This figure is for quick inspection of model specification differences. 
 #' @param na.action lavaan option
 #' @param subset lavaan option
 #' @param varcov lavaan option
@@ -317,9 +318,9 @@ mvpt <- function(lavaan_model, path, data,
 }
 
 
-#' View Single Model
+#' mvpt() Follow-up: View Single Model
 #' 
-#' Follow-up function to see figure and lavaan results for a single model.
+#' Follow-up function to see figure and lavaan results for a single SEM.
 #' 
 #' @param mvpt_output Output from using mvpt() function.
 #' @param index Model index for list of compared model, both given and auto-generated. Model 1 is always the given model.
@@ -331,39 +332,44 @@ mvpt <- function(lavaan_model, path, data,
 #' @export
 mvptZoom <- function(mvpt_output, index){
   
-  FIGURE_list <- mvpt_output[[1]]
   SEMfitted_list <- mvpt_output[[2]]
+  FIGURE_list <- mvpt_output[[1]]
   
-  list(FIGURE_list[[index]], 
-       summary(SEMfitted_list[[index]], standardized = TRUE))
+  list(summary(SEMfitted_list[[index]], standardized = TRUE),
+       FIGURE_list[[index]]
+       )
   
 }
 
 
-
-#' Rank Models by Path Value 
+#' mvpt() Follow-up: Rank Models by Path Value 
 #' 
-#' Follow-up function to rank and view models with largest path values (updated rank by absolute value pending).
+#' Follow-up function to rank and view all models by path value.
 #' 
 #' @param mvpt_output Output from using mvpt() function.
-#' @param top Number of top models to include in report.  
 #' @return An object of class...
 #' @examples
 #' \dontrun{
 #' mvpt_output <- mvpt(lavaan_model, path, data)
-#' mvptRank(mvpt_output, top = 3)}
+#' mvptRank(mvpt_output)}
 #' @export
-mvptRank <- function(mvpt_output, top){
+mvptRank <- function(mvpt_output){
   
   CORE_comp <- mvpt_output[[3]]
-  x <- CORE_comp$sharedparamvals
-  x_top <- sort(x, decreasing = TRUE)[seq_len(top)]
-  x_top
+  vals <- CORE_comp$sharedparamvals
+  groups <- split(names(vals), vals)
+  ranked_groups <- groups[order(as.numeric(names(groups)))]
+  
+  out <- unname(cbind(
+    as.numeric(names(ranked_groups)),
+    vapply(groups, paste, collapse = ", ", character(1))
+  ))
+  out
   
 }
 
 
-#' Print an mvpt() object
+#' Print User-facing Results from mvpt() Object
 #'
 #' Displays a compact summary of an object returned by \code{\link{mvpt}}.
 #'
@@ -404,6 +410,4 @@ print.mvpt <- function(x, ...) {
   }
   
 }
-
-
 
