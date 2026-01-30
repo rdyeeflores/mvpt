@@ -6,7 +6,7 @@ Date: 2026-01-17
 Authors@R: c(
     person(given = "Ronald", family = "Yee-Flores",
            role = c("aut", "cre"),
-           email = "ronald.flores@missouri.edu",
+           email = "ronaldyeeflores@gmail.edu",
            comment = c(ORCID = "0000-0002-7423-1608")),
     person(given = "Edgar", family = "Merkle",
            role = "aut",
