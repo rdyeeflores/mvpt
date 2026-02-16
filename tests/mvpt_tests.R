@@ -22,10 +22,11 @@ if(FALSE){
   library(lavaan)
   library(dagitty)
   
-  
-  
   ## DATA: Workburnout 
   load("DATA//burnout/burnout.rda")
+  ## Add one NA to this complete dataset
+  burnout[200, 15] <- NA
+  anyNA(burnout)
   ## Adding composites
   burnout$DMc <-  (burnout$DM1 + burnout$DM2) / 2
   burnout$SEc <-  (burnout$SE1 + burnout$SE2 + burnout$SE3) / 3
@@ -33,13 +34,10 @@ if(FALSE){
   burnout$EEc <-  (burnout$EE1 + burnout$EE2 + burnout$EE3) / 3
   burnout$DPc <-  (burnout$DP1 + burnout$DP2) / 2
   burnout$PAc <-  (burnout$PA1 + burnout$PA2 + burnout$PA3) / 3
-  ## Add one NA to this complete dataset
-  burnout[200, 15] <- NA
-  anyNA(burnout)
   
   
   ## EXAMPLE: Five LV models fitted to the same data (all members of same MEC) 
-  ## NOTE: Absence of fixed.x=FALSE during fitting
+  ## NOTE: Absence of fixed.x=FALSE during fitting (not used for equiv fit indices here)
   M1 <- 
     "
     ## regressions
@@ -164,9 +162,7 @@ if(FALSE){
     "
   path <- "PAc~EEc"
   path <- "PA~EE"
-  
   mvpt(LAV, path, data=burnout, showplots = TRUE)
-  ## Looking at key component of auto_sem()
   subMEC_lavaan_ready <- dagu(LAV, path)$subMEC_lavaan_ready
   
   ## calc_A(SEMfitted) and calc_sc(SEMfitted) 

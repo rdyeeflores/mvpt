@@ -113,11 +113,6 @@ dagu <- function(LAV, path){
 #' @keywords internal
 auto_sem <- function(subMEC_lavaan_ready, data, na.action=na.omit, subset=NULL, varcov = NULL, n = NULL){
   
-  ## STOP: Exiting if user specified LVs or covariances (update PENDING)
-  if (anyNA(data)) {
-    stop("Only complete datasets (no NAs) are allowed. Please account for this missing data before running mvpt().")
-  }
-  
   fit_list <- list()
   for (i in 1:length(subMEC_lavaan_ready)) {
     fit_list[[i]] <- sem(model=subMEC_lavaan_ready[[i]], data=data, fixed.x=FALSE)
