@@ -19,7 +19,7 @@ To an idea of how mvpt works using lavaan-formatted SEMs, consider the following
 Bollen's 1989 book:
 
 ```R
-library(lavaan)
+library(mvpt)
 
 lavaan_model <- 
 "
