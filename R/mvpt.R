@@ -57,16 +57,13 @@ dagu <- function(LAV, path){
   
   ## STOP: Exiting if user included covariances (update PENDING)
   if (grepl("~~", LAV)) {
-    stop("Covariance specifications (`~~`) are not allowed in this function.")
+    stop("Covariance parameters (`~~`) are not allowed in this version of mvpt().")
   }
   
-  ## STOP: Exiting if user specifies an SEM or path with labels 
+  ## STOP: Exiting if user specifies an SEM with labels (no need to repeat for path) 
   ## NOTE: Using "\\*"  because "*" does not work at identifying models with labels 
   if ( grepl("\\*", LAV) ) {
-    stop("Model syntax includes parameter labels, which are automatically removed by dagitty::lavaanToGraph. Please remove all labels from your model and specified path before running mvpt().")
-  }
-  if (!grepl("~", path)) {
-    stop("For the path speficied, labeling is not allowed. Please specify using tilde-notation instead (e.g., Y ~ X).")
+    stop("Model syntax includes parameter labels, which are automatically removed by dagitty::lavaanToGraph. Before running mvpt(), please remove all labels from your lavaan-formatted model and use tilde-notation for the path argument (e.g., Y ~ X).")
   }
   
   ## Turning path's "~-notion" into parts for better indexing in MEC
@@ -210,6 +207,7 @@ VW_core <- function(SEMfitted_list, path){
   ## Computing a Wald CHI-square test 
   THETA  <- NULL
   for (i in 1:M) {THETA <- c(THETA, coef(SEMfitted_list[[i]]))}
+  path <- gsub(" ", "", path)
   H      <- clubSandwich::constrain_equal(as.character(path), THETA, reg_ex = TRUE) 
   df     <- nrow(H)
   HSH <- H %*% (SIGMA/n) %*% t(H)
@@ -276,7 +274,7 @@ mvpt <- function(lavaan_model, path, data,
     stop("Invalid lavaan model syntax:\n", fit_try)
   }
   if (!is.character(path) || length(strsplit(path, "~")[[1]]) != 2) {
-    stop("The path must be a single character string like 'y ~ x'.")
+    stop("The path must be a single character string like 'Y ~ X'.")
   }
   
   dagu <- dagu(lavaan_model, path)
@@ -387,7 +385,7 @@ print.mvpt <- function(x, ...) {
   p.val <- CORE_comp$p.val           
   
   ## Message  
-  cat(sprintf("Including the given model, %d fitted SEMs were compared in a MVP test \nusing a dataset of %d observations. Test results across these models \nare based on the shared path: %s\n", M, n, path))
+  cat(sprintf("Including the given model, %d fitted SEMs were compared \nin a MVP test using a dataset of %d observations. \nTest results across these models are based on the \nshared path: %s\n", M, n, path))
   cat("\n")
   cat("MVP Test Results\n")
   cat("------------------\n")
