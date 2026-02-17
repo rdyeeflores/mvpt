@@ -9,8 +9,10 @@ Ouput will show how many models were compared (your model + all auto-generated m
 Install the development version from GitHub:
 
 ```R
-# install.packages("remotes")
+install.packages("remotes")
 remotes::install_github("rdyeeflores/mvpt")
+
+library(mvpt)
 ```
 
 ## Usage
@@ -19,7 +21,7 @@ To an idea of how mvpt works using lavaan-formatted SEMs, consider the following
 Bollen's 1989 book:
 
 ```R
-library(mvpt)
+data(PoliticalDemocracy, package = "lavaan")
 
 lavaan_model <- 
 "
