@@ -1,16 +1,5 @@
 
-#### mvpt package: FUNCTIONALITY BATTERY ##########################################
-
-## NOTE: Good to automate these tests so one command can be used to get a report about what failed.
-
-## NOTE: Below are copies of code chunks in mvpt.R -> the goal is to have a series of tests, such as:
-## 1. Checking for valid lavaan syntax, producing messages ow; valid syntax for all used R packages
-## 2. Checking for valid mvpt syntax, producing messages ow
-## 3. Making sure model generation is as expected, and constrain where needed (eg: too many models generated)
-## 4. Having messages for all possible VW_core test problems
-
-
-#### Libraries and data ####
+#### COMPONENTS: Libraries, data, and fitted models ####
 
 ## pkgload::load_all(export_all = FALSE) ## warning expected
 
@@ -31,8 +20,7 @@ burnout$EEc <-  (burnout$EE1 + burnout$EE2 + burnout$EE3) / 3
 burnout$DPc <-  (burnout$DP1 + burnout$DP2) / 2
 burnout$PAc <-  (burnout$PA1 + burnout$PA2 + burnout$PA3) / 3
 
-## Five LV models fitted to the same data (all members of same MEC) 
-## NOTE: Absence of fixed.x=FALSE during fitting (not used for equiv fit indices here)
+## Five LV models (all members of same MEC) 
 M1 <- 
   "
   ## regressions
@@ -123,11 +111,11 @@ M5 <-
   DP  =~ DP1 + DP2
   PA  =~ PA1 + PA2 + PA3
   "
-M1_fit <- sem(M1, data=burnout)
-M2_fit <- sem(M2, data=burnout)
-M3_fit <- sem(M3, data=burnout)
-M4_fit <- sem(M4, data=burnout)
-M5_fit <- sem(M5, data=burnout)
+M1_fit <- sem(M1, data=burnout, fixed.x = FALSE)
+M2_fit <- sem(M2, data=burnout, fixed.x = FALSE)
+M3_fit <- sem(M3, data=burnout, fixed.x = FALSE)
+M4_fit <- sem(M4, data=burnout, fixed.x = FALSE)
+M5_fit <- sem(M5, data=burnout, fixed.x = FALSE)
 
 
 #### FUNCTION: dagu(LAV, path) and auto_sem(subMEC_lavaan_ready, data) ####
@@ -160,8 +148,17 @@ LAV <- ## incorrect: adding parameter labels
 path <- "PAc~EEc" ## correct wo LVs
 path <- "PA~EE"   ## correct w LVs
 path <- "PA ~ EE" ## correct w LVs but with gaps around ~
-mvpt(lavaa_model = LAV, path = path, data = burnout, showplots = TRUE)
+dagu(LAV, path)
 subMEC_lavaan_ready <- dagu(LAV, path)$subMEC_lavaan_ready
+auto_sem(subMEC_lavaan_ready, data)
+## Functionality without LVs
+## Functionality with LVs
+## Non-functionality with input formatting errors
+## Non-functionality message with covariances 
+## Non-functionality message with labels
+
+
+
 
 
 #### FUNCTION: calc_A(SEMfitted), calc_sc(SEMfitted), and calc_B(sc1, sc2, n) #### 
@@ -170,6 +167,12 @@ SEMfitted <- M1_fit
 sc1 <- calc_sc(M1_fit)
 sc2 <- calc_sc(M2_fit)   
 n <- nobs(M1_fit)
+calc_A(SEMfitted)
+calc_sc(SEMfitted)
+calc_B(sc1, sc2, n)
+## Functionality using fitted models
+## Non-functionality because of library overlap (sandwich problem)
+## Non-functionality because of matrix algebra error
 
 
 #### FUNCTION: VW_core(SEMfitted_list, path) ####
@@ -177,6 +180,12 @@ n <- nobs(M1_fit)
 SEMfitted_list <- list(M1_fit, M2_fit, M3_fit, M4_fit, M5_fit)
 path <- "PA~SE"
 path <- "PA ~ SE"
+VW_core(SEMfitted_list, path)
+## Functionality assuming all the above
+## Functionality assuming all the above, but with lavaan warnings (eg: neg var)
+## Non-functionality with impossible matrices
+
+
 
 
 #### FUNCTION: mvpt(lavaan_model, path, data) and other main functions ####
@@ -205,6 +214,8 @@ data <- burnout
 MVP <- mvpt(lavaan_model, path, data, showplots = TRUE) ## 5 models; p=0.999
 MVP
 mvptZoom(MVP, 1)
+## Functionality assuming all the above
+## Non-functionality with input format errors
 
 
 
