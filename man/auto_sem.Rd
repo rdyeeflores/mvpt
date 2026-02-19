@@ -4,27 +4,12 @@
 \alias{auto_sem}
 \title{SEM Auto-fitting (Internal)}
 \usage{
-auto_sem(
-  subMEC_lavaan_ready,
-  data,
-  na.action = na.omit,
-  subset = NULL,
-  varcov = NULL,
-  n = NULL
-)
+auto_sem(subMEC_lavaan_ready, data, missing = "ml", estimator = "ML")
 }
 \arguments{
 \item{subMEC_lavaan_ready}{A list of pre-fitted SEMs in lavaan syntax}
 
 \item{data}{A data frame to fit the given SEM}
-
-\item{na.action}{SEM option}
-
-\item{subset}{SEM option}
-
-\item{varcov}{SEM option}
-
-\item{n}{SEM option}
 }
 \value{
 A lavaan-fitted model list

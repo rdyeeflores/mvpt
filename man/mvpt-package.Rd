@@ -12,7 +12,7 @@ Main functions are \code{\link{mvpt}},
 \code{\link{mvptZoom}}, and \code{\link{mvptRank}}.
 }
 \author{
-\strong{Maintainer}: Ronald Yee-Flores \email{ronald.flores@missouri.edu} (\href{https://orcid.org/0000-0002-7423-1608}{ORCID})
+\strong{Maintainer}: Ronald Yee-Flores \email{ronaldyeeflores@gmail.edu} (\href{https://orcid.org/0000-0002-7423-1608}{ORCID})
 
 Authors:
 \itemize{

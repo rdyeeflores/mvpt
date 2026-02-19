@@ -48,7 +48,7 @@ dagu <- function(LAV, path){
   DAG <- lavaanToGraph(LAV_regressions)
   unidirect <- edges(DAG)[ !edges(DAG)$e == "<->", ]
   lines <- apply(unidirect, 1, function(x) paste(x[1], "->", x[2]))
-  dagtext <- paste0("dag {\n", paste(lines, collapse="\n"), "\n}")
+  dagtext <- paste0("dag {\n", paste(lines, collapse = "\n"), "\n}")
   DAG <- dagitty(dagtext)
   
   ## Giving coordinates, creating MEC
@@ -102,22 +102,20 @@ dagu <- function(LAV, path){
 #'
 #' @param subMEC_lavaan_ready A list of pre-fitted SEMs in lavaan syntax
 #' @param data A data frame to fit the given SEM 
-#' @param na.action SEM option
-#' @param subset SEM option
-#' @param varcov SEM option
-#' @param n SEM option
 #' @return A lavaan-fitted model list
 #' @keywords internal
-auto_sem <- function(subMEC_lavaan_ready, data, na.action=na.omit, subset=NULL, varcov = NULL, n = NULL){
+auto_sem <- function(subMEC_lavaan_ready, data, missing = "ml", estimator = "ML"){
   
   fit_list <- list()
   for (i in 1:length(subMEC_lavaan_ready)) {
-    fit_list[[i]] <- sem(model=subMEC_lavaan_ready[[i]], data=data, fixed.x=FALSE)
+    fit_list[[i]] <- sem(model = subMEC_lavaan_ready[[i]], 
+                         data = data, 
+                         fixed.x = FALSE, 
+                         missing = missing,
+                         estimator = estimator) ## avoiding drops bc sandwich::estfun()
   }
   fit_list  
-  
 }
-
 
 #' Calculate Matrix A (Internal)
 #'
@@ -235,38 +233,35 @@ VW_core <- function(SEMfitted_list, path){
 
 #' Run MVP Test
 #' 
-#' Using a pre-fitted SEM and single path within that SEM, both in lavaan syntax, this function auto-generates other models with the same single path, though with differing relationships between other specified variables. This function then uses the supplied data to fit all models, followed by a test across models for significant value differences in the specified path.
+#' Using a pre-fitted SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path using only the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings, followed by a test across models for significant value changes in the specified path.
 #' 
 #' @param lavaan_model A pre-fitted SEM in lavaan syntax. 
 #' @param path The path to be tested within the given SEM. This must also be in lavaan syntax (eg: Y~X).
 #' @param data A data frame to fit the given SEM, and all others that may be auto-generated. 
 #' @param showplots Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first. This figure is for quick inspection of model specification differences. 
-#' @param na.action lavaan option
-#' @param subset lavaan option
-#' @param varcov lavaan option
-#' @param n lavaan option
 #' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components. 
 #' @examples
 #' \dontrun{
 #' data(PoliticalDemocracy, package = "lavaan")
+#' 
 #' lavaan_model <- 
 #'   "
+#'   ## latent variables
+#'   ind60 =~ x1 + x2 + x3
+#'   dem60 =~ y1 + y2 + y3 + y4
+#'   dem65 =~ y5 + y6 + y7 + y8
 #'   ## regressions
 #'   dem60 ~ ind60
 #'   dem65 ~ ind60 + dem60
-#'   ## latent variables
-#'   ind60 =~ x1 + x2 + x3
-#'   dem60 =~ y1 + a*y2 + b*y3 + c*y4
-#'   dem65 =~ y5 + a*y6 + b*y7 + c*y8
 #'   "
 #' path <- "dem60 ~ ind60"
-#' data <- PoliticalDemocracy
-#' output <- mvpt(lavaan_model, path, data)
-#' output}
+#' mvpt <- mvpt(lavaan_model, path, data = PoliticalDemocracy, showplots = TRUE)
+#' mvpt}
 #' @export
-mvpt <- function(lavaan_model, path, data, 
-                 showplots=FALSE,
-                 na.action=na.omit, subset=NULL, varcov = NULL, n = NULL){
+mvpt <- function(lavaan_model, 
+                 path, 
+                 data, 
+                 showplots = FALSE){
   
   ## STOP: User inputs are in wrong format
   fit_try <- try(sem(lavaan_model, data=data, do.fit=FALSE), silent = TRUE)

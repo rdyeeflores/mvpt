@@ -4,16 +4,7 @@
 \alias{mvpt}
 \title{Run MVP Test}
 \usage{
-mvpt(
-  lavaan_model,
-  path,
-  data,
-  showplots = FALSE,
-  na.action = na.omit,
-  subset = NULL,
-  varcov = NULL,
-  n = NULL
-)
+mvpt(lavaan_model, path, data, showplots = FALSE)
 }
 \arguments{
 \item{lavaan_model}{A pre-fitted SEM in lavaan syntax.}
@@ -23,36 +14,28 @@ mvpt(
 \item{data}{A data frame to fit the given SEM, and all others that may be auto-generated.}
 
 \item{showplots}{Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first. This figure is for quick inspection of model specification differences.}
-
-\item{na.action}{lavaan option}
-
-\item{subset}{lavaan option}
-
-\item{varcov}{lavaan option}
-
-\item{n}{lavaan option}
 }
 \value{
 An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components.
 }
 \description{
-Using a pre-fitted SEM and single path within that SEM, both in lavaan syntax, this function auto-generates other models with the same single path, though with differing relationships between other specified variables. This function then uses the supplied data to fit all models, followed by a test across models for significant value differences in the specified path.
+Using a pre-fitted SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path using only the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings, followed by a test across models for significant value changes in the specified path.
 }
 \examples{
 \dontrun{
 data(PoliticalDemocracy, package = "lavaan")
+
 lavaan_model <- 
   "
+  ## latent variables
+  ind60 =~ x1 + x2 + x3
+  dem60 =~ y1 + y2 + y3 + y4
+  dem65 =~ y5 + y6 + y7 + y8
   ## regressions
   dem60 ~ ind60
   dem65 ~ ind60 + dem60
-  ## latent variables
-  ind60 =~ x1 + x2 + x3
-  dem60 =~ y1 + a*y2 + b*y3 + c*y4
-  dem65 =~ y5 + a*y6 + b*y7 + c*y8
   "
 path <- "dem60 ~ ind60"
-data <- PoliticalDemocracy
-output <- mvpt(lavaan_model, path, data)
-output}
+mvpt <- mvpt(lavaan_model, path, data = PoliticalDemocracy, showplots = TRUE)
+mvpt}
 }
