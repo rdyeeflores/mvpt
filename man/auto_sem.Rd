@@ -15,6 +15,6 @@ auto_sem(subMEC_lavaan_ready, data, missing = "ml", estimator = "ML")
 A lavaan-fitted model list
 }
 \description{
-Takes a lavaan ready list of models and fits all with same basic settings, then produces a fitted list. Not passing sem() arguments yet, and assumes complete data.
+Takes a lavaan-ready list of models and fits all with same basic settings, then produces a fitted list. Not passing sem() estimator and missing arguments yet (maximum likelihood default).
 }
 \keyword{internal}

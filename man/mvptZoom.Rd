@@ -15,7 +15,7 @@ mvptZoom(mvpt_output, index)
 An object of class...
 }
 \description{
-Follow-up function to see figure and lavaan results for a single SEM.
+Follow-up function to see figure and lavaan output for a single SEM.
 }
 \examples{
 \dontrun{

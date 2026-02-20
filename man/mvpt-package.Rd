@@ -5,7 +5,7 @@
 \alias{mvpt-package}
 \title{mvpt: Multiverse Path Test}
 \description{
-For individual path estimates within a larger SEM, this is a sensitivity analysis for the robustness of a single path estimate across multiple, automatically-generated, yet equally-fitting SEMs. Significant path estimation value changes will be traceable to suggested model specification changes.
+Researcher often face uncertainty when multiple SEMs can equally explain the same data. This can be problematic when the effect (path) between two variables can be modeled in different ways. To help manage path value estimation uncertainty due to having competing models, a SEM Multiverse Path (MVP) Test can auto-generate competing SEMs with the same specified path and tests whether this one path is equal across models. Significant path estimation value changes will be traceable to suggested model specification changes.
 }
 \details{
 Main functions are \code{\link{mvpt}},

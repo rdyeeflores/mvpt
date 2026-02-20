@@ -1,6 +1,6 @@
 #' mvpt: Multiverse Path Test
 #'
-#' For individual path estimates within a larger SEM, this is a sensitivity analysis for the robustness of a single path estimate across multiple, automatically-generated, yet equally-fitting SEMs. Significant path estimation value changes will be traceable to suggested model specification changes.   
+#' Researcher often face uncertainty when multiple SEMs can equally explain the same data. This can be problematic when the effect (path) between two variables can be modeled in different ways. To help manage path value estimation uncertainty due to having competing models, a SEM Multiverse Path (MVP) Test can auto-generate competing SEMs with the same specified path and tests whether this one path is equal across models. Significant path estimation value changes will be traceable to suggested model specification changes.   
 #'
 #' @details
 #' Main functions are \code{\link{mvpt}},
@@ -98,7 +98,7 @@ dagu <- function(LAV, path){
 
 #' SEM Auto-fitting (Internal)
 #'
-#' Takes a lavaan ready list of models and fits all with same basic settings, then produces a fitted list. Not passing sem() arguments yet, and assumes complete data.
+#' Takes a lavaan-ready list of models and fits all with same basic settings, then produces a fitted list. Not passing sem() estimator and missing arguments yet (maximum likelihood default).
 #'
 #' @param subMEC_lavaan_ready A list of pre-fitted SEMs in lavaan syntax
 #' @param data A data frame to fit the given SEM 
@@ -159,7 +159,7 @@ calc_B <- function(sc1, sc2, n){
 
 #' Calculate Vuong-Wald Core MVP Test Statistic (Internal)
 #'
-#' For a list of fitted SEMs and shared path, a multivariate sampling distribution, is used to compare values for a path shared by these SEMs.
+#' For a list of fitted SEMs and a shared path, a multivariate sampling distribution is used to compare path values between these SEMs.
 #'
 #' @param SEMfitted_list A list of lavaan-fitted SEMs
 #' @param path A lavaan syntax path
@@ -233,7 +233,7 @@ VW_core <- function(SEMfitted_list, path){
 
 #' Run MVP Test
 #' 
-#' Using a pre-fitted SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path using only the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings, followed by a test across models for significant value changes in the specified path.
+#' Using a pre-fitted SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
 #' 
 #' @param lavaan_model A pre-fitted SEM in lavaan syntax. 
 #' @param path The path to be tested within the given SEM. This must also be in lavaan syntax (eg: Y~X).
@@ -308,7 +308,7 @@ mvpt <- function(lavaan_model,
 
 #' mvpt() Follow-up: View Single Model
 #' 
-#' Follow-up function to see figure and lavaan results for a single SEM.
+#' Follow-up function to see figure and lavaan output for a single SEM.
 #' 
 #' @param mvpt_output Output from using mvpt() function.
 #' @param index Model index for list of compared model, both given and auto-generated. Model 1 is always the given model.

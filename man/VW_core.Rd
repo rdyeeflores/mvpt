@@ -15,6 +15,6 @@ VW_core(SEMfitted_list, path)
 List of lists and more test components
 }
 \description{
-For a list of fitted SEMs and shared path, a multivariate sampling distribution, is used to compare values for a path shared by these SEMs.
+For a list of fitted SEMs and a shared path, a multivariate sampling distribution is used to compare path values between these SEMs.
 }
 \keyword{internal}
