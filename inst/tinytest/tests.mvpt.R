@@ -5,12 +5,12 @@
 ## roxygen2::roxygenise("C:/Git/mvpt")
 ## devtools::check("C:/Git/mvpt", cran = TRUE)
 
-## Local package loading amd tinytest (tinytest after loading)
+## Local package loading and tinytest (tinytest after loading)
 ## pkgload::load_all(export_all = FALSE) ## warning expected
 ## tinytest::run_test_dir("C:/Git/mvpt/inst/tinytest")
 
-library(lavaan, quietly = TRUE)
-library(dagitty, quietly = TRUE)
+library(lavaan)
+library(dagitty)
 
 ## DATA: Simulated workburnout dataset (no regression yet)
 set.seed(12345)
@@ -28,7 +28,6 @@ data_generating_model <-
 simData <- simulateData(model = data_generating_model,  sample.nobs = 599)
 ## Adding one NA to this complete dataset
 simData[10, 10] <- NA
-anyNA(simData)
 ## Adding composite measures
 simData$C1 <- (simData$x1  + simData$x2  + simData$x3)  / 3
 simData$C2 <- (simData$x4  + simData$x5  + simData$x6)  / 3
@@ -229,5 +228,4 @@ mvpt:::calc_B(sc1, sc2, n)
 SEMfitted_list <- list(simM1_fit, simM2_fit, simM3_fit, simM4_fit, simM5_fit)
 path <- "LV4~LV1"
 mvpt:::VW_core(SEMfitted_list, path)
-
 
