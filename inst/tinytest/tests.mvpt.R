@@ -1,13 +1,4 @@
-
 #### COMPONENTS: Libraries, data, and fitted models ####
-
-## Run roxy and CRAN check (possible Windows-only note pops up)
-## roxygen2::roxygenise("C:/Git/mvpt")
-## devtools::check("C:/Git/mvpt", cran = TRUE)
-
-## Local package loading and tinytest (tinytest after loading)
-## pkgload::load_all(export_all = FALSE) ## warning expected
-## tinytest::run_test_dir("C:/Git/mvpt/inst/tinytest")
 
 library(lavaan)
 library(dagitty)
@@ -216,6 +207,12 @@ path <- "LV4 ~ LV1"
 data <- simData
 subMEC_lavaan_ready <- mvpt:::dagu(LAV, path)$subMEC_lavaan_ready
 mvpt:::auto_sem(subMEC_lavaan_ready, data)
+
+## Non-functionality if default missing argument is changed
+expect_error(auto_sem(subMEC_lavaan_ready, data, missing = "listwise"))
+
+## Non-functionality if default estimator argument is changed
+expect_error(auto_sem(subMEC_lavaan_ready, data, estimator = "WLS"))
 
 SEMfitted <- simM1_fit
 sc1 <- mvpt:::calc_sc(SEMfitted)

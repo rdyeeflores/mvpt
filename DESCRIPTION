@@ -1,6 +1,6 @@
 Package: mvpt
 Type: Package
-Title: SEM Multiverse Path Test
+Title: Multiverse Path Test
 Version: 1.0-0
 Date: 2026-01-17
 Authors@R: c(
