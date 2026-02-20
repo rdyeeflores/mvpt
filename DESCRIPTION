@@ -27,7 +27,8 @@ Imports:
     sandwich
 Suggests:
     knitr,
-    rmarkdown
+    rmarkdown,
+    tinytest
 VignetteBuilder: knitr
 License: GPL (>= 3)
 Encoding: UTF-8
