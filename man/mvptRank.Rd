@@ -7,10 +7,7 @@
 mvptRank(mvpt_output)
 }
 \arguments{
-\item{mvpt_output}{Output from using mvpt() function.}
-}
-\value{
-An object of class...
+\item{mvpt_output}{Output from mvpt().}
 }
 \description{
 Follow-up function to rank and view all models by path value.

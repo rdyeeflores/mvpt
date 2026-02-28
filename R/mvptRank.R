@@ -2,8 +2,7 @@
 #' 
 #' Follow-up function to rank and view all models by path value.
 #' 
-#' @param mvpt_output Output from using mvpt() function.
-#' @return An object of class...
+#' @param mvpt_output Output from mvpt().
 #' @examples
 #' \dontrun{
 #' mvpt_output <- mvpt(lavaan_model, path, data)

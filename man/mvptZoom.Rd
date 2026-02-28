@@ -7,12 +7,9 @@
 mvptZoom(mvpt_output, index)
 }
 \arguments{
-\item{mvpt_output}{Output from using mvpt() function.}
+\item{mvpt_output}{Output from mvpt().}
 
 \item{index}{Model index for list of compared model, both given and auto-generated. Model 1 is always the given model.}
-}
-\value{
-An object of class...
 }
 \description{
 Follow-up function to see figure and lavaan output for a single SEM.

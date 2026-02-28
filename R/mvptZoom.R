@@ -2,9 +2,8 @@
 #' 
 #' Follow-up function to see figure and lavaan output for a single SEM.
 #' 
-#' @param mvpt_output Output from using mvpt() function.
+#' @param mvpt_output Output from mvpt().
 #' @param index Model index for list of compared model, both given and auto-generated. Model 1 is always the given model.
-#' @return An object of class...
 #' @examples
 #' \dontrun{
 #' mvpt_output <- mvpt(lavaan_model, path, data)

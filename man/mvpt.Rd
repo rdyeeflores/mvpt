@@ -7,7 +7,7 @@
 mvpt(lavaan_model, path, data, showplots = FALSE)
 }
 \arguments{
-\item{lavaan_model}{A pre-fitted SEM in lavaan syntax.}
+\item{lavaan_model}{A SEM in lavaan syntax.}
 
 \item{path}{The path to be tested within the given SEM. This must also be in lavaan syntax (eg: Y~X).}
 
@@ -19,7 +19,7 @@ mvpt(lavaan_model, path, data, showplots = FALSE)
 An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components.
 }
 \description{
-Using a pre-fitted SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
+Using a the model specification of a SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
 }
 \examples{
 \dontrun{

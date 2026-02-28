@@ -1,8 +1,8 @@
 #' Run MVP Test
 #' 
-#' Using a pre-fitted SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
+#' Using the model specification of a SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
 #' 
-#' @param lavaan_model A pre-fitted SEM in lavaan syntax. 
+#' @param lavaan_model A SEM in lavaan syntax. 
 #' @param path The path to be tested within the given SEM. This must also be in lavaan syntax (eg: Y~X).
 #' @param data A data frame to fit the given SEM, and all others that may be auto-generated. 
 #' @param showplots Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first. This figure is for quick inspection of model specification differences. 
