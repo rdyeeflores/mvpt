@@ -36,14 +36,13 @@ mvpt <- function(lavaan_model,
     stop("Invalid lavaan model syntax:\n", fit_try)
   }
   if (!is.character(path) || length(strsplit(path, "~")[[1]]) != 2) {
-    stop("The path must be a single character string like 'Y ~ X'.")
+    stop("The path must be a character string like 'Y ~ X'.")
   }
   
   dagu <- dagu(lavaan_model, path)
   if(is.null(dagu)){ return(invisible(NULL)) }
   
-  ## FIGURE_list to house all model ggdag figures
-  ## NOTE: Tailoring DAG figures via ggplot instead of ggdags
+  ## FIGURE_list to house all ggdag figures (tailoring via ggplot)
   subMEC <- dagu$subMEC
   FIGURE_list <- list()
   for (i in 1:length(subMEC)) {

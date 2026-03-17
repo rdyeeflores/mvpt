@@ -1,4 +1,4 @@
-#' DAG Utility for Model Auto-generation (Internal)
+#' DAG Utility for Model Auto-Generation (Internal)
 #'
 #' Takes one model and path in lavaan syntax, auto-generates the MEC, then gets subMEC_lavaan_ready.
 #'
