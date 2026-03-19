@@ -8,6 +8,17 @@
 #' @keywords internal
 dagu <- function(LAV, path){
   
+  ## STOP: Exiting if user included covariances (update PENDING)
+  if (grepl("~~", LAV)) {
+    stop("Covariance parameters (`~~`) are not allowed in this version of mvpt().")
+  }
+  
+  ## STOP: Exiting if user specifies an SEM with labels (no need to repeat for path) 
+  ## NOTE: Using "\\*"  because "*" does not work at identifying models with labels 
+  if ( grepl("\\*", LAV) ) {
+    stop("Model syntax includes parameter labels, which are automatically removed by dagitty::lavaanToGraph. Before running mvpt(), please remove all labels from your lavaan-formatted model and use tilde-notation for the path argument (e.g., Y ~ X).")
+  }
+  
   ## Separation of LAV into regressions and LVs 
   ## NOTE: Avoids flipping arrows emanating from LVs when producing MEC
   split_syntax <- function(LAV) {
@@ -19,6 +30,11 @@ dagu <- function(LAV, path){
   }
   LAV_regressions <- split_syntax(LAV)[[1]]
   LAV_LVs <- split_syntax(LAV)[[2]]
+  
+  ## Turning path's "~-notion" into parts for better indexing in MEC
+  parts <- strsplit(path, "~")[[1]]
+  outcome_var <- trimws(parts[1])
+  predictor_var <- trimws(parts[2])
   
   ## Converting LAV_regressions to DAG format
   ## NOTE: Must manually remove dagitty-automated placement of exogenous covariances
@@ -32,21 +48,6 @@ dagu <- function(LAV, path){
   DAG <- graphLayout(DAG) 
   MEC <- equivalentDAGs(DAG)
   
-  ## STOP: Exiting if user included covariances (update PENDING)
-  if (grepl("~~", LAV)) {
-    stop("Covariance parameters (`~~`) are not allowed in this version of mvpt().")
-  }
-  
-  ## STOP: Exiting if user specifies an SEM with labels (no need to repeat for path) 
-  ## NOTE: Using "\\*"  because "*" does not work at identifying models with labels 
-  if ( grepl("\\*", LAV) ) {
-    stop("Model syntax includes parameter labels, which are automatically removed by dagitty::lavaanToGraph. Before running mvpt(), please remove all labels from your lavaan-formatted model and use tilde-notation for the path argument (e.g., Y ~ X).")
-  }
-  
-  ## Turning path's "~-notion" into parts for better indexing in MEC
-  parts <- strsplit(path, "~")[[1]]
-  outcome_var <- trimws(parts[1])
-  predictor_var <- trimws(parts[2])
   
   ## Looping with index to get subMEC (member models with same user-specified path) 
   IND <- vector()
