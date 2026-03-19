@@ -4,9 +4,10 @@
 #'
 #' @param SEMfitted_list A list of lavaan-fitted SEMs
 #' @param path A lavaan syntax path
+#' @param reversal Option to allow reversal of given path
 #' @return List of lists and more test components
 #' @keywords internal
-VW_core <- function(SEMfitted_list, path){
+VW_core <- function(SEMfitted_list, path, reversal){
   
   ## Number of observations and models
   n <- nobs(SEMfitted_list[[1]])
@@ -43,11 +44,16 @@ VW_core <- function(SEMfitted_list, path){
   }
   SIGMA <- prev_rows
   
-  ## Computing a Wald CHI-square test 
+  ## Computing a Wald CHI-square test (reversal dependent)
   THETA  <- NULL
   for (i in 1:M) {THETA <- c(THETA, coef(SEMfitted_list[[i]]))}
-  path <- gsub(" ", "", path)
-  H      <- clubSandwich::constrain_equal(as.character(path), THETA, reg_ex = TRUE) 
+  path <- as.character(gsub(" ", "", path))
+  rev_path <- paste(rev(strsplit(path, "~")[[1]]), collapse = "~")
+  if(reversal){
+    H      <- clubSandwich::constrain_equal(paste(path, rev_path, sep = "|"), THETA, reg_ex = TRUE) 
+  }else{
+    H      <- clubSandwich::constrain_equal(path, THETA, reg_ex = TRUE) 
+  }
   df     <- nrow(H)
   HSH <- H %*% (SIGMA/n) %*% t(H)
   lambda <- 1e-8   # adjust as needed to help regularize matrix inversion
@@ -55,8 +61,13 @@ VW_core <- function(SEMfitted_list, path){
   CHI.sq <- t(H %*% THETA) %*% solve(HSH_regu) %*% (H %*% THETA) 
   p.val  <- pchisq(CHI.sq, df, lower.tail=FALSE)
   
-  ## Collecting shared path values from each model in a new vector
-  sharedparamvals <- THETA[names(THETA) == path]
+  ## Collecting shared path values from each model in a new vector (reversal dependent)
+  if(reversal){
+    sharedparamvals <- THETA[names(THETA) == path | names(THETA) == rev_path]
+  }else{
+    sharedparamvals <- THETA[names(THETA) == path]
+  }
+
   for (i in seq_along(sharedparamvals)) {
     names(sharedparamvals)[i] <- paste0("M", seq(length(sharedparamvals)))[i]
   }

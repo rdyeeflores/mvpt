@@ -2,14 +2,16 @@
 % Please edit documentation in R/internal_dagu.R
 \name{dagu}
 \alias{dagu}
-\title{DAG Utility for Model Auto-generation (Internal)}
+\title{DAG Utility for Model Auto-Generation (Internal)}
 \usage{
-dagu(LAV, path)
+dagu(LAV, path, reversal)
 }
 \arguments{
 \item{LAV}{A lavaan syntax model}
 
 \item{path}{A lavaan syntax path}
+
+\item{reversal}{Option to allow reversal of given path}
 }
 \value{
 A model list in dagitty and another in lavaan format

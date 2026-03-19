@@ -4,9 +4,10 @@
 #'
 #' @param LAV A lavaan syntax model
 #' @param path A lavaan syntax path
+#' @param reversal Option to allow reversal of given path
 #' @return A model list in dagitty and another in lavaan format
 #' @keywords internal
-dagu <- function(LAV, path){
+dagu <- function(LAV, path, reversal){
   
   ## STOP: Exiting if user included covariances (update PENDING)
   if (grepl("~~", LAV)) {
@@ -48,27 +49,33 @@ dagu <- function(LAV, path){
   DAG <- graphLayout(DAG) 
   MEC <- equivalentDAGs(DAG)
   
-  
-  ## Looping with index to get subMEC (member models with same user-specified path) 
+  ## Indexing to get non-reversed MEC subgroup
   IND <- vector()
   for (i in 1:length(MEC)) {
     IND[i] <- sum(edges(MEC[[i]])$v == predictor_var & edges(MEC[[i]])$w == outcome_var) == 1
   }
   subMEC <- MEC[IND]  
   
-  ## MESSAGE: Early exit bc subMEC contains only one model; nothing to compare, nothing to compute
-  if (length(subMEC) < 2) {
+  ## Family dependent on reversal choice
+  if(reversal){
+    fam <- c(subMEC, MEC[!IND])
+  }else{
+    fam <- subMEC
+  }
+  
+  ## MESSAGE: Early exit bc fam contains only one model; nothing to compare, nothing to compute
+  if (length(fam) < 2) {
     message("An MVP Test could not be computed using the provided lavaan model stynax \nand path. No other models could be generated for comparison, thus halting \ncomputation of a test statistic.")
     return(invisible(NULL)) 
   }
   
-  ## Turning subMEC list into lavaan syntax list, adding any previous split LVs too
+  ## Turning fam list into lavaan syntax list, adding any previous split LVs too
   LAV_regs_multi <- list()
-  subMEC_lavaan_ready <- list()
-  for (i in 1:length(subMEC)) {
-    LAV_regs_multi[[i]] <- convert(subMEC[[i]], to="lavaan")
-    subMEC_lavaan_ready[[i]] <- paste(c(LAV_regs_multi[[i]], LAV_LVs), collapse = "\n")
+  fam_lavaan_ready <- list()
+  for (i in 1:length(fam)) {
+    LAV_regs_multi[[i]] <- convert(fam[[i]], to="lavaan")
+    fam_lavaan_ready[[i]] <- paste(c(LAV_regs_multi[[i]], LAV_LVs), collapse = "\n")
   }
   
-  list(subMEC=subMEC, subMEC_lavaan_ready=subMEC_lavaan_ready)
+  list(fam=fam, fam_lavaan_ready=fam_lavaan_ready)
 }

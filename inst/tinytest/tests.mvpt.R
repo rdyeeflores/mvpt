@@ -2,6 +2,7 @@
 
 library(lavaan)
 library(dagitty)
+library(ggplot)
 
 ## DATA: Simulated workburnout dataset (no regression yet)
 set.seed(12345)
@@ -184,6 +185,24 @@ expect_error(mvpt(lavaan_model = err_model_format, path = "C4~C1", data = simDat
 
 ## Non-functionality and warnings due to lavaan fitting error (!need a list first)
 
+####################################### NEW REVERSAL TESTING
+
+corr_model_format <- 
+  "
+  C2 ~ C1
+  C3 ~ C1 + C2
+  "
+LAV <- corr_model_format
+lavaan_model = corr_model_format
+path = "C2 ~ C1"
+data = simData
+reversal = TRUE
+
+expect_silent(mvpt(lavaan_model = corr_model_format, path = "C2 ~ C1", data = simData, showplots = TRUE, reversal = TRUE))
+
+
+
+#########################################################
 
 #### MAIN FUNCTION: mvptRank(mvpt_output) ####
 
@@ -205,14 +224,14 @@ expect_error(mvptZoom(mvpt_output, index=7))
 LAV <- simM1
 path <- "LV4 ~ LV1"
 data <- simData
-subMEC_lavaan_ready <- mvpt:::dagu(LAV, path)$subMEC_lavaan_ready
-mvpt:::auto_sem(subMEC_lavaan_ready, data)
+fam_lavaan_ready <- mvpt:::dagu(LAV, path)$fam_lavaan_ready
+mvpt:::auto_sem(fam_lavaan_ready, data)
 
 ## Non-functionality if default missing argument is changed
-expect_error(auto_sem(subMEC_lavaan_ready, data, missing = "listwise"))
+expect_error(auto_sem(fam_lavaan_ready, data, missing = "listwise"))
 
 ## Non-functionality if default estimator argument is changed
-expect_error(auto_sem(subMEC_lavaan_ready, data, estimator = "WLS"))
+expect_error(auto_sem(fam_lavaan_ready, data, estimator = "WLS"))
 
 SEMfitted <- simM1_fit
 sc1 <- mvpt:::calc_sc(SEMfitted)

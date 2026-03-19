@@ -6,6 +6,7 @@
 #' @param path The path to be tested within the given SEM. This must also be in lavaan syntax (eg: Y~X).
 #' @param data A data frame to fit the given SEM, and all others that may be auto-generated. 
 #' @param showplots Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first. This figure is for quick inspection of model specification differences. 
+#' @param reversal Option to allow reversal of given path
 #' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components. 
 #' @examples
 #' \dontrun{
@@ -28,7 +29,8 @@
 mvpt <- function(lavaan_model, 
                  path, 
                  data, 
-                 showplots = FALSE){
+                 showplots = FALSE,
+                 reversal = FALSE){
   
   ## STOP: User inputs are in wrong format
   fit_try <- try(sem(lavaan_model, data=data, do.fit=FALSE), silent = TRUE)
@@ -39,14 +41,14 @@ mvpt <- function(lavaan_model,
     stop("The path must be a character string like 'Y ~ X'.")
   }
   
-  dagu <- dagu(lavaan_model, path)
+  dagu <- dagu(lavaan_model, path, reversal)
   if(is.null(dagu)){ return(invisible(NULL)) }
   
   ## FIGURE_list to house all ggdag figures (tailoring via ggplot)
-  subMEC <- dagu$subMEC
+  fam <- dagu$fam
   FIGURE_list <- list()
-  for (i in 1:length(subMEC)) {
-    td <- ggdag::tidy_dagitty(subMEC[[i]])  # node coords + edge list
+  for (i in 1:length(fam)) {
+    td <- ggdag::tidy_dagitty(fam[[i]])  # node coords + edge list
     FIGURE_list[[i]] <- ggplot(td, aes(x = x, y = y, xend = xend, yend = yend)) +
       ggdag::geom_dag_edges(
         start_cap = ggraph::circle(4, "mm"),
@@ -58,11 +60,11 @@ mvpt <- function(lavaan_model,
   }
   
   ## SEMfitted_list to house all sem() results
-  subMEC_lavaan_ready <- dagu$subMEC_lavaan_ready
-  SEMfitted_list <- auto_sem(subMEC_lavaan_ready, data)
+  fam_lavaan_ready <- dagu$fam_lavaan_ready
+  SEMfitted_list <- auto_sem(fam_lavaan_ready, data)
   
   ## CORE test components
-  CORE_comp <- VW_core(SEMfitted_list, path)
+  CORE_comp <- VW_core(SEMfitted_list, path, reversal)
   
   ## OUTPUT: Via print() method 
   output <- list(FIGURE_list=FIGURE_list, SEMfitted_list=SEMfitted_list, CORE_comp=CORE_comp, showplots=showplots)

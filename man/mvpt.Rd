@@ -4,7 +4,7 @@
 \alias{mvpt}
 \title{Run MVP Test}
 \usage{
-mvpt(lavaan_model, path, data, showplots = FALSE)
+mvpt(lavaan_model, path, data, showplots = FALSE, reversal = FALSE)
 }
 \arguments{
 \item{lavaan_model}{A SEM in lavaan syntax.}
@@ -14,6 +14,8 @@ mvpt(lavaan_model, path, data, showplots = FALSE)
 \item{data}{A data frame to fit the given SEM, and all others that may be auto-generated.}
 
 \item{showplots}{Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first. This figure is for quick inspection of model specification differences.}
+
+\item{reversal}{Option to allow reversal of given path}
 }
 \value{
 An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components.

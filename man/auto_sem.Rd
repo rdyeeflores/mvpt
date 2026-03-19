@@ -4,10 +4,10 @@
 \alias{auto_sem}
 \title{SEM Auto-fitting (Internal)}
 \usage{
-auto_sem(subMEC_lavaan_ready, data, missing = "ml", estimator = "ML")
+auto_sem(fam_lavaan_ready, data, missing = "ml", estimator = "ML")
 }
 \arguments{
-\item{subMEC_lavaan_ready}{A list of pre-fitted SEMs in lavaan syntax}
+\item{fam_lavaan_ready}{A list of pre-fitted SEMs in lavaan syntax}
 
 \item{data}{A data frame to fit the given SEM}
 }
