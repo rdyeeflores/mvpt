@@ -8,7 +8,7 @@
 #'
 "_PACKAGE"
 
-#' @importFrom lavaan sem lavInspect nobs vcov coef summary
+#' @importFrom lavaan sem lavInspect nobs vcov coef summary lavaanify
 #' @importFrom dagitty dagitty lavaanToGraph edges graphLayout equivalentDAGs convert
 #' @importFrom ggplot2 ggplot aes
 #' @importFrom stats na.omit pchisq

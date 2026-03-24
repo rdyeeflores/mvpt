@@ -7,15 +7,15 @@
 mvpt(lavaan_model, path, data, showplots = FALSE, reversal = FALSE)
 }
 \arguments{
-\item{lavaan_model}{A SEM in lavaan syntax.}
+\item{lavaan_model}{An SEM in lavaan syntax.}
 
-\item{path}{The path to be tested within the given SEM. This must also be in lavaan syntax (eg: Y~X).}
+\item{path}{The path to be tested within the given SEM. This must also be in lavaan syntax (eg: "Y ~ X").}
 
-\item{data}{A data frame to fit the given SEM, and all others that may be auto-generated.}
+\item{data}{A data frame to fit the given SEM, and all other SEMs that may be auto-generated.}
 
-\item{showplots}{Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first. This figure is for quick inspection of model specification differences.}
+\item{showplots}{Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first (top-left). This figure is for quick inspection of model specification differences.}
 
-\item{reversal}{Option to allow reversal of given path}
+\item{reversal}{Whether to include auto-generated SEMs in which the given path is reversed.}
 }
 \value{
 An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components.

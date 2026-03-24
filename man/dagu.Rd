@@ -4,10 +4,10 @@
 \alias{dagu}
 \title{DAG Utility for Model Auto-Generation (Internal)}
 \usage{
-dagu(LAV, path, reversal)
+dagu(LAV_list, path, reversal = FALSE)
 }
 \arguments{
-\item{LAV}{A lavaan syntax model}
+\item{LAV_list}{One or more lavaan syntax models in a list}
 
 \item{path}{A lavaan syntax path}
 

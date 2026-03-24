@@ -7,20 +7,11 @@
 #' @param reversal Option to allow reversal of given path
 #' @return List of lists and more test components
 #' @keywords internal
-VW_core <- function(SEMfitted_list, path, reversal){
+VW_core <- function(SEMfitted_list, path, reversal = FALSE){
   
   ## Number of observations and models
   n <- nobs(SEMfitted_list[[1]])
   M <- length(SEMfitted_list)
-  
-  ## WARNING: Models with negative variances
-  all_pos_param <- vector(length=M)
-  for (i in 1:M) {
-    all_pos_param[i] <- lavInspect(SEMfitted_list[[i]], "post.check") 
-  }
-  if(all(all_pos_param)==FALSE){
-    warning("WARNING: Negative variance computed. Interpret MVP test results with caution.")
-  }
   
   ## Gathering needed components per model by using helper functions 
   A <- vector(mode = "list", length=M)
@@ -44,7 +35,7 @@ VW_core <- function(SEMfitted_list, path, reversal){
   }
   SIGMA <- prev_rows
   
-  ## Computing a Wald CHI-square test (reversal dependent)
+  ## Computing a Wald CHI-square test (H matrix now reversal dependent)
   THETA  <- NULL
   for (i in 1:M) {THETA <- c(THETA, coef(SEMfitted_list[[i]]))}
   path <- as.character(gsub(" ", "", path))
@@ -68,6 +59,7 @@ VW_core <- function(SEMfitted_list, path, reversal){
     sharedparamvals <- THETA[names(THETA) == path]
   }
 
+  ## Assigning an "M#" labels for each model
   for (i in seq_along(sharedparamvals)) {
     names(sharedparamvals)[i] <- paste0("M", seq(length(sharedparamvals)))[i]
   }

@@ -9,17 +9,19 @@
 auto_sem <- function(fam_lavaan_ready, data, missing = "ml", estimator = "ML"){
   
   # STOP: Enforce missing and estimator defaults
+  # NOTE: Avoiding listwise deletion because of mismatch with sandwich::estfun()
   if (tolower(missing) != "ml" || tolower(estimator) != "ml") {
     stop("The default missing = 'ml' and estimator = 'ML' arguments cannot currently be changed.")
   }
   
+  ## NOTE: Stop function for lavaan error/warning already at start of mvpt() (needed again here?)
   fit_list <- list()
   for (i in 1:length(fam_lavaan_ready)) {
     fit_list[[i]] <- sem(model = fam_lavaan_ready[[i]], 
                          data = data, 
                          fixed.x = FALSE, 
                          missing = missing,
-                         estimator = estimator) ## avoiding drops bc sandwich::estfun()
+                         estimator = estimator) 
   }
   fit_list  
 }
