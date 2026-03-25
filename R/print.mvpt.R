@@ -26,7 +26,7 @@ print.mvpt <- function(x, ...) {
   cat("MVP Test Results\n")
   cat("------------------\n")
   cat(sprintf("Overall chi-square = %.2f     (p = %.3f)\n\n", CHI.sq, p.val))
-  cat("Standardized path value per model:\n")
+  cat("Standardized model path values:\n")
   print(sharedparamvals)
   
   ## ON/OFF switch for grid figure
