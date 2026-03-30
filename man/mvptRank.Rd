@@ -14,6 +14,19 @@ Follow-up function to rank and view all models by path value.
 }
 \examples{
 \dontrun{
-mvpt_output <- mvpt(lavaan_model, path, data)
+data(PoliticalDemocracy, package = "lavaan")
+
+lavaan_model <- 
+  "
+  ## latent variables
+  ind60 =~ x1 + x2 + x3
+  dem60 =~ y1 + y2 + y3 + y4
+  dem65 =~ y5 + y6 + y7 + y8
+  ## regressions
+  dem60 ~ ind60
+  dem65 ~ ind60 + dem60
+  "
+path <- "dem60 ~ ind60"
+mvpt_output <- mvpt(lavaan_model, path, data = PoliticalDemocracy)
 mvptRank(mvpt_output)}
 }
