@@ -24,17 +24,17 @@ Bollen's 1989 book:
 data(PoliticalDemocracy, package = "lavaan")
 
 lavaan_model <- 
-"
-   # latent variables
+   "
+   ## latent variables
      ind60 =~ x1 + x2 + x3
      dem60 =~ y1 + y2 + y3 + y4
      dem65 =~ y5 + y6 + y7 + y8
-   # regressions
+   ## regressions
      dem60 ~ ind60
      dem65 ~ ind60 + dem60
-"
+   "
 path <- "dem60 ~ ind60"
-mvpt <- mvpt(lavaan_model, path, data = PoliticalDemocracy, showplots = TRUE)
-mvpt
+mvpt_output <- mvpt(lavaan_model, path, data = PoliticalDemocracy, showplots = TRUE)
+mvpt_output
 
 ```
