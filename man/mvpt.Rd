@@ -37,7 +37,9 @@ lavaan_model <-
   dem60 ~ ind60
   dem65 ~ ind60 + dem60
   "
+  
 path <- "dem60 ~ ind60"
+
 mvpt_output <- mvpt(lavaan_model, path, data = PoliticalDemocracy, showplots = TRUE)
 mvpt_output}
 }
