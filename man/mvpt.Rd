@@ -2,7 +2,7 @@
 % Please edit documentation in R/mvpt.R
 \name{mvpt}
 \alias{mvpt}
-\title{Run MVP Test}
+\title{Run MVPT}
 \usage{
 mvpt(lavaan_model, path, data, showplots = FALSE, reversal = FALSE)
 }
@@ -14,11 +14,9 @@ mvpt(lavaan_model, path, data, showplots = FALSE, reversal = FALSE)
 \item{data}{A data frame to fit the given SEM, and all other SEMs that may be auto-generated.}
 
 \item{showplots}{Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first (top-left). This figure is for quick inspection of model specification differences.}
-
-\item{reversal}{Whether to include auto-generated SEMs in which the given path is reversed.}
 }
 \value{
-An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components.
+An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVPT components.
 }
 \description{
 Using the model specification of a SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
@@ -40,6 +38,10 @@ lavaan_model <-
   
 path <- "dem60 ~ ind60"
 
-mvpt_output <- mvpt(lavaan_model, path, data = PoliticalDemocracy, showplots = TRUE)
-mvpt_output}
+mvpt_output <- mvpt(lavaan_model, 
+                    path, 
+                    data = PoliticalDemocracy, 
+                    showplots = TRUE)
+mvpt_output
+}
 }

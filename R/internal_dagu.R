@@ -81,7 +81,7 @@ dagu <- function(LAV_list, path, reversal = FALSE){
   
   ## MESSAGE: Early exit bc fam contains only one model; nothing to compare, nothing to compute
   if (length(fam_lavaan_ready) < 2) {
-    message("An MVP Test could not be computed using the provided lavaan model stynax \nand path. No other models could be generated for comparison, thus halting \ncomputation of a test statistic.")
+    message("An MVPT could not be computed using the provided lavaan model syntax \nand path. No other models could be generated for comparison, thus halting \ncomputation of a test statistic.")
     return(invisible(NULL)) 
   }
   

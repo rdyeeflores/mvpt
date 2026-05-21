@@ -1,4 +1,4 @@
-#' Run MVP Test
+#' Run MVPT
 #' 
 #' Using the model specification of a SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
 #' 
@@ -6,8 +6,7 @@
 #' @param path The path to be tested within the given SEM. This must also be in lavaan syntax (eg: "Y ~ X").
 #' @param data A data frame to fit the given SEM, and all other SEMs that may be auto-generated. 
 #' @param showplots Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first (top-left). This figure is for quick inspection of model specification differences. 
-#' @param reversal Whether to include auto-generated SEMs in which the given path is reversed.
-#' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVP test components. 
+#' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVPT components. 
 #' @examples
 #' \dontrun{
 #' data(PoliticalDemocracy, package = "lavaan")
@@ -29,7 +28,8 @@
 #'                     path, 
 #'                     data = PoliticalDemocracy, 
 #'                     showplots = TRUE)
-#' mvpt_output}
+#' mvpt_output
+#' }
 #' @export
 mvpt <- function(lavaan_model, 
                  path, 
@@ -40,20 +40,23 @@ mvpt <- function(lavaan_model,
   ## Generalized lavaan_model for use with single model or list()
   LAV_list <- if (is.list(lavaan_model)) lavaan_model else list(lavaan_model) ## list() object no matter class
   
-  ## Gathering observed variables (whether with or without LVs) 
-  ## NOTE: This also catches basic syntax errors
+  ## Subsetting observed variables (whether with or without LVs) 
   OVs <- unique(unlist(lapply(LAV_list, \(m) {
     v <- unique(unlist(lavaanify(m)[c("lhs","rhs")]))
     intersect(v, names(data))
   })))
+  data_sub <- data[OVs]
   
-  ## Subsetting given data to only consist of standardized observed variables
-  data_std <- as.data.frame(lapply(data[OVs], \(x) (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)))
+  ## Standardizing subset if reversal = TRUE
+  if(reversal) {
+    data_sub <- as.data.frame(lapply(data_sub, \(x) 
+    (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
+  ))} 
   
   ## STOP: Model(s) generating lavaan error/warning
   for (i in seq_along(LAV_list)) {
     tryCatch(
-      sem(LAV_list[[i]], data = data_std, do.fit = TRUE, fixed.x = FALSE),
+      sem(LAV_list[[i]], data = data_sub, do.fit = TRUE, fixed.x = FALSE),
       error = function(e) {
         stop(conditionMessage(e), "\nError returned by lavaan. Run lavaan_model and data in lavaan first, fix the issue reported, and only retry mvpt() once there is no error. ", call. = FALSE)},
       warning = function(w) {
@@ -111,13 +114,13 @@ mvpt <- function(lavaan_model,
   
   ## SEMfitted_list to house all sem() results
   fam_lavaan_ready <- dagu$fam_lavaan_ready 
-  SEMfitted_list <- auto_sem(fam_lavaan_ready, data_std)
+  SEMfitted_list <- auto_sem(fam_lavaan_ready, data_sub)
   
   ## CORE test components
-  CORE_comp <- VW_core(SEMfitted_list, path, reversal)
+  CORE_comp <- vw_core(SEMfitted_list, path, reversal)
   
   ## OUTPUT: Via print() method 
-  output <- list(FIGURE_list=FIGURE_list, SEMfitted_list=SEMfitted_list, CORE_comp=CORE_comp, showplots=showplots)
+  output <- list(FIGURE_list=FIGURE_list, SEMfitted_list=SEMfitted_list, CORE_comp=CORE_comp, showplots=showplots, reversal=reversal)
   class(output) <- "mvpt"
   output
   

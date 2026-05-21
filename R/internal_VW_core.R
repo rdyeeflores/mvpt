@@ -7,7 +7,7 @@
 #' @param reversal Option to allow reversal of given path
 #' @return List of lists and more test components
 #' @keywords internal
-VW_core <- function(SEMfitted_list, path, reversal = FALSE){
+vw_core <- function(SEMfitted_list, path, reversal = FALSE){
   
   ## Number of observations and models
   n <- nobs(SEMfitted_list[[1]])
@@ -65,7 +65,7 @@ VW_core <- function(SEMfitted_list, path, reversal = FALSE){
   }
   
   ## OUTPUT: List of test components
-  list(M=M, n=n, path=path, sharedparamvals=sharedparamvals, CHI.sq=CHI.sq, p.val=p.val, SIGMA=SIGMA, H=H, THETA=THETA)
+  list(M=M, n=n, path=path, sharedparamvals=sharedparamvals, CHI.sq=CHI.sq, df=df, p.val=p.val, SIGMA=SIGMA, H=H, THETA=THETA)
   
 }
 
