@@ -217,7 +217,7 @@ sc2 <- mvpt:::calc_sc(SEMfitted)
 n <- nobs(SEMfitted)
 
 
-#### HELPER FUNCTION: VW_core(SEMfitted_list, path, reversal) ####
+#### HELPER FUNCTION: vw_core(SEMfitted_list, path, reversal) ####
 
 SEMfitted_list <- list(model1_fit, model2_fit, model3_fit, model4_fit, model5_fit)
 path <- "LV3 ~ LV1"
