@@ -29,7 +29,7 @@ print.mvpt <- function(x, ...) {
   cat("------------------\n")
   cat(sprintf("Overall chi-square = %.2f, df = %.0f        (p = %.3f)\n\n", CHI.sq, df, p.val))
   if(reversal){
-    cat("Path values per model (standardized):\n")
+    cat("Path values per model (standardized data):\n")
   }else{
     cat("Path values per model:\n")  
   }
