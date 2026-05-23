@@ -10,7 +10,7 @@
 dagu <- function(LAV_list, path, reversal = FALSE){
   
   ## Function separating LAV into regressions and LVs, with former turned to DAGs for FIGURE_list
-  ## NOTE: Avoids flipping arrows emanating from LVs when producing MEC
+  ## NOTE: Avoids flipping arrows emanating from LVs to OVs when producing MEC
   split_syntax <- function(LAV) {
     lines <- trimws(strsplit(LAV, "\n", fixed = TRUE)[[1]])
     lines <- lines[nzchar(lines) & !grepl("^#", lines)]  ## drop blanks + full-line comments
@@ -30,7 +30,22 @@ dagu <- function(LAV_list, path, reversal = FALSE){
     ## Giving coordinates
     DAG <- graphLayout(DAG) 
     DAG
+  }
   
+  ## Function adds "0" covariances between all pairwise exos in a lavaan-ready model
+  add_zero_exo_covs <- function(model) {
+    lines <- trimws(strsplit(model, "\n")[[1]])
+    lines <- lines[nzchar(lines)]
+    regs <- lines[grepl("~", lines) & !grepl("~~", lines)]
+    lhs <- trimws(sub("~.*", "", regs))
+    rhs <- unlist(strsplit(trimws(sub(".*~", "", regs)), "\\+"))
+    rhs <- trimws(rhs)
+    exo <- setdiff(unique(rhs), unique(lhs)) ## identify exos
+    ## Generate all pairwise covs
+    covs <- if (length(exo) > 1) {
+      apply(combn(sort(exo), 2), 2, \(x) paste0(x[1], " ~~ 0*", x[2]))
+    } else character(0)
+    paste(c(lines, covs), collapse = "\n")
   }
   
   ## Taking LAV_list to make a list of DAGs from each LAV's set of regression equations
@@ -70,13 +85,13 @@ dagu <- function(LAV_list, path, reversal = FALSE){
     for (i in 1:length(fam)) {
       fam_lavaan_ready[[i]] <- paste(c(convert(fam[[i]], to="lavaan"), split_syntax_list[[1]]$LVs), collapse = "\n")
     }
+    fam_lavaan_ready <- lapply(fam_lavaan_ready, add_zero_exo_covs) ## adding "0" covariances
     
   }else{
     
     ## NO auto-generation (but still getting regs2DAG_list for FIGURE_list later)
     fam <- regs2DAG_list
-    fam_lavaan_ready <- LAV_list
-    
+    fam_lavaan_ready <- lapply(LAV_list, add_zero_exo_covs) ## adding "0" covariances
   }
   
   ## MESSAGE: Early exit bc fam contains only one model; nothing to compare, nothing to compute
