@@ -36,7 +36,7 @@ dagu <- function(LAV_list, path, reversal = FALSE){
   add_zero_exo_covs <- function(model) {
     lines <- trimws(strsplit(model, "\n")[[1]])
     lines <- lines[nzchar(lines)]
-    regs <- lines[grepl("~", lines) & !grepl("~~", lines)]
+    regs <- lines[grepl("~", lines) & !grepl("~~|=~", lines)]
     lhs <- trimws(sub("~.*", "", regs))
     rhs <- unlist(strsplit(trimws(sub(".*~", "", regs)), "\\+"))
     rhs <- trimws(rhs)
@@ -45,6 +45,8 @@ dagu <- function(LAV_list, path, reversal = FALSE){
     covs <- if (length(exo) > 1) {
       apply(combn(sort(exo), 2), 2, \(x) paste0(x[1], " ~~ 0*", x[2]))
     } else character(0)
+    existing_covs <- lines[grepl("~~", lines)] ## for user covs
+    covs <- setdiff(covs, existing_covs) ## for user covs
     paste(c(lines, covs), collapse = "\n")
   }
   
