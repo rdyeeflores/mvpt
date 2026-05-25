@@ -26,6 +26,18 @@
 #' @export
 mvptZoom <- function(mvpt_output, index){
   
+  if (!inherits(mvpt_output, "mvpt")) {
+    stop("'mvpt_output' must be an object of class 'mvpt'.")
+  }
+  
+  if (!is.numeric(index) ||
+      length(index) != 1 ||
+      index %% 1 != 0 ||
+      index < 1 ||
+      index > mvpt_output$CORE_comp$M) {
+    stop("'index' must be a single integer value from 1 up to the total number of compared SEMs.")
+  }
+  
   SEMfitted_list <- mvpt_output[[2]]
   FIGURE_list <- mvpt_output[[1]]
   

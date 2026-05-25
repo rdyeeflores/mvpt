@@ -23,7 +23,7 @@ print.mvpt <- function(x, ...) {
   p.val <- CORE_comp$p.val           
   
   ## Message  
-  cat(sprintf("Including the given model, %d fitted SEMs were compared \nin an MVPT using a dataset of %d observations. \nTest results across these models were based on the \nspecified path: %s\n", M, n, path))
+  cat(sprintf("Including the given model, %d SEMs were compared \nin an MVPT using a dataset of %d observations. \nTest results across these models were based on the \nspecified path: %s\n", M, n, path))
   cat("\n")
   cat("MVPT Results\n")
   cat("------------------\n")

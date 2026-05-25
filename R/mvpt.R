@@ -35,28 +35,16 @@ mvpt <- function(lavaan_model,
                  path, 
                  data, 
                  showplots = FALSE,
-                 reversal = FALSE){
+                 reversal = FALSE, 
+                 MEC_only = TRUE){
   
   ## Generalized lavaan_model for use with single model or list()
-  LAV_list <- if (is.list(lavaan_model)) lavaan_model else list(lavaan_model) ## list() object no matter class
+  LAV_list <- if (is.list(lavaan_model)) lavaan_model else list(lavaan_model) ## list() no matter class
   
-  ## Subsetting observed variables (whether with or without LVs) 
-  OVs <- unique(unlist(lapply(LAV_list, \(m) {
-    v <- unique(unlist(lavaanify(m)[c("lhs","rhs")]))
-    intersect(v, names(data))
-  })))
-  data_sub <- data[OVs]
-  
-  ## Standardizing subset if reversal = TRUE
-  if(reversal) {
-    data_sub <- as.data.frame(lapply(data_sub, \(x) 
-    (x - mean(x, na.rm = TRUE)) / sd(x, na.rm = TRUE)
-  ))} 
-  
-  ## STOP: Model(s) generating lavaan error/warning
+  ## STOP: Model(s) generating lavaan-based error or warning
   for (i in seq_along(LAV_list)) {
     tryCatch(
-      sem(LAV_list[[i]], data = data_sub, do.fit = TRUE, fixed.x = FALSE),
+      sem(LAV_list[[i]], data = data, do.fit = TRUE, auto.cov.lv.x = FALSE),
       error = function(e) {
         stop(conditionMessage(e), "\nError returned by lavaan. Run lavaan_model and data in lavaan first, fix the issue reported, and only retry mvpt() once there is no error. ", call. = FALSE)},
       warning = function(w) {
@@ -75,9 +63,12 @@ mvpt <- function(lavaan_model,
     stop("Model syntax includes parameter labels, which are automatically removed by dagitty::lavaanToGraph. Before running mvpt(), please remove all labels from your lavaan-formatted model and use tilde-notation for the path argument (e.g., 'Y ~ X').")
   }
   
-  ## STOP: Specified path is in not in tilde notation format
-  if (!is.character(path) || length(strsplit(path, "~")[[1]]) != 2) {
-    stop("Specified path must be a character string: 'Y ~ X'.")
+  ## STOP: Specified path is in not in correct tilde notation
+  path_no_space <- gsub("\\s+", "", path)
+  if (!is.character(path) ||
+      length(path) != 1 ||
+      !grepl("^[A-Za-z][A-Za-z0-9._]*~[A-Za-z][A-Za-z0-9._]*$", path_no_space)) {
+    stop('Specified path must be a character string, for example: "Y ~ X".')
   }
   
   ## STOP: Specified path is not in model(s)
@@ -88,14 +79,26 @@ mvpt <- function(lavaan_model,
   }
   ok <- vapply(LAV_list, has_path, logical(1), path = path)
   if (!all(ok)) {
-    stop("Specified path must be part of specified model." )
+    stop("Specified path must be present in model specification." )
   }
   
-  ## Use dagu() to get fam and fam_lavaan_ready (varies by lavaan_model class)
-  dagu <- dagu(LAV_list, path, reversal)
-  if(is.null(dagu)){ return(invisible(NULL)) } ## because dagu message does not exit
+  ## Subsetting to observed variables only (whether with or without LVs) 
+  ## NOTE: Additionally standardizing subset if reversal = TRUE
+  OVs <- unique(unlist(lapply(LAV_list, \(m) {
+    v <- unique(unlist(lavaanify(m)[c("lhs","rhs")]))
+    intersect(v, names(data))
+  })))
+  data_sub <- data[OVs]
+  if(reversal) {
+    data_sub <- as.data.frame(lapply(
+      data_sub, \(x) (x - mean(x, na.rm = TRUE)) / stats::sd(x, na.rm = TRUE)
+  ))} 
   
-  ## FIGURE_list to house all ggdag figures (tailoring via ggplot)
+  ## Using dagu() to get fam and fam_lavaan_ready (to produce figures and lavaan-fitted models)
+  dagu <- dagu(LAV_list, path, reversal, MEC_only)
+  if(is.null(dagu)){ return(invisible(NULL)) } ## needed because messages dont exit
+  
+  ## FIGURE_list to house all ggdag figures, tailoring via ggplot
   fam <- dagu$fam
   FIGURE_list <- list()
   for (i in 1:length(fam)) {

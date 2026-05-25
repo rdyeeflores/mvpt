@@ -4,7 +4,7 @@
 \alias{dagu}
 \title{DAG Utility for Model Auto-Generation (Internal)}
 \usage{
-dagu(LAV_list, path, reversal = FALSE)
+dagu(LAV_list, path, reversal = FALSE, MEC_only = TRUE)
 }
 \arguments{
 \item{LAV_list}{One or more lavaan syntax models in a list}

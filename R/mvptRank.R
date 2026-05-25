@@ -25,6 +25,11 @@
 #' @export
 mvptRank <- function(mvpt_output){
   
+  
+  if (!inherits(mvpt_output, "mvpt")) {
+    stop("'mvpt_output' must be an object of class 'mvpt'.")
+  }
+  
   CORE_comp <- mvpt_output[[3]]
   vals <- CORE_comp$sharedparamvals
   groups <- split(names(vals), vals)

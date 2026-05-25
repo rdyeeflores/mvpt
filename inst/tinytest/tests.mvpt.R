@@ -1,8 +1,10 @@
 #### COMPONENTS: Libraries, data, and EXAMPLEs for testing ####
 
-library(lavaan)
+library(lavaan) 
+## library(tinytest)
+## library(mvpt)
 
-## DATA: Simulated workburnout dataset (no regression yet)
+## DATA: Simulated dataset (no regression needed)
 set.seed(12345)
 data_generating_model <- 
   "
@@ -18,10 +20,6 @@ simData[1, 1] <- NA
 simData$C1 <- (simData$x1  + simData$x2  + simData$x3)  / 3
 simData$C2 <- (simData$x4  + simData$x5  + simData$x6)  / 3
 simData$C3 <- (simData$x7  + simData$x8  + simData$x9)  / 3
-
-## Functionality of standardization via mvpt() (null reversal test)
-mvpt_twomodel_result <- mvpt(lavaan_model="C2~C1", path="C2~C1", data=simData, showplots=TRUE, reversal = TRUE)
-expect_true(round(mvpt_twomodel_result$CORE_comp$p.val, 3) == 1)
 
 ## EXAMPLE: One correct model wo LVs
 corr_model <- 
@@ -91,6 +89,8 @@ model6 <-
   LV2 =~ x4  + x5  + x6
   LV3 =~ x7  + x8  + x9
   "
+
+## EXAMPLE: Sextet of fitted LV models
 model1_fit <- sem(model1, data=simData, fixed.x = FALSE, missing = "ml")
 model2_fit <- sem(model2, data=simData, fixed.x = FALSE, missing = "ml")
 model3_fit <- sem(model3, data=simData, fixed.x = FALSE, missing = "ml")
@@ -98,13 +98,16 @@ model4_fit <- sem(model4, data=simData, fixed.x = FALSE, missing = "ml")
 model5_fit <- sem(model5, data=simData, fixed.x = FALSE, missing = "ml")
 model6_fit <- sem(model6, data=simData, fixed.x = FALSE, missing = "ml")
 
+## EXAMPLE: mvpt() output
+mvpt_output <- mvpt(lavaan_model = model1, path = "LV3 ~ LV1", data = simData, showplots = TRUE)
+
+
+#### THEORY TESTS (maybe add one more about automatics covs) ####
+
 ## Functionality of equal fit indices theory across SEXTET (within tolerance)
 model_fit_list <- list(model1_fit, model2_fit, model3_fit, model4_fit, model5_fit, model6_fit)
 fm_list <- lapply(model_fit_list, function(f) unname(fitMeasures(f, c("cfi","tli","rmsea","srmr"))))
 expect_true(all(sapply(fm_list, function(x) isTRUE(all.equal(fm_list[[1]], x, tolerance = 1e-6)))))
-
-## EXAMPLE: mvpt() output
-mvpt_output <- mvpt(lavaan_model = model1, path = "LV3 ~ LV1", data = simData, showplots = TRUE)
 
 
 #### MAIN FUNCTION: mvpt(lavaan_model, path, data) ####
@@ -128,18 +131,52 @@ expect_equal(M == 6, TRUE)
 ## Functionality without LVs, list() with one model nested in the next (where path match is implied)
 expect_silent(mvpt(lavaan_model = list("C3 ~ C1", "C3 ~ C2 + C1\n C2~C1"), path = "C3 ~ C1", data = simData, showplots = TRUE))
 
-## Non-functionality due non-lavaan formatting 
+## Non-functionality due to negative variances (Heywood cases)
+set.seed(123); n <- 100
+f1 <- rnorm(n)
+f2 <- 0.80 * f1 + rnorm(n, sd = 0.30)
+y1 <- 1.00 * f1 + rnorm(n, sd = 0.01) ## perfect indicator
+y2 <- 0.40 * f1 + rnorm(n, sd = 0.30)
+y3 <- 0.40 * f2 + rnorm(n, sd = 0.30)
+y4 <- 0.40 * f2 + rnorm(n, sd = 0.30)
+dat_hey <- data.frame(y1, y2, y3, y4)
+model_hey1 <- 
+  '
+  f1 =~ y1 + y2
+  f2 =~ y3 + y4
+  f2 ~ f1
+  '
+model_hey2 <- 
+  '
+  f1 =~ y1 + y3
+  f2 =~ y2 + y4
+  f2 ~ f1
+  '
+lavaan_model <- list(model_hey1, model_hey2)
+expect_error(mvpt(lavaan_model, path = "f2 ~ f1", data = dat_hey))
+
+## Non-functionality due to non-positive definite cov matrix
+set.seed(123); n <- 100
+x1 <- rnorm(n)
+x2 <- x1          # perfect correlation
+x3 <- rnorm(n)
+y  <- rnorm(n)
+data <- data.frame(x1, x2, x3, y)
+lavaan_model <- 
+  '
+  y ~ x1 + x2
+  x2 ~ x1
+  '
+path = "y ~ x1"
+expect_error(mvpt(lavaan_model, path = "y ~ x1", data))
+
+## Non-functionality due wrong input object
+expect_error(mvpt(lavaan_model = model1_fit, path = "C3~C1", data = simData))
+
+## Non-functionality due non-lavaan formatting error
 err_model <- 
   "
   C2 + C1
-  C3 ~ C1 + C2
-  "
-expect_error(mvpt(lavaan_model = list(corr_model, err_model), path = "C3~C1", data = simData, showplots = TRUE))
-
-## Non-functionality due to label usage
-err_model <- 
-  "
-  C2 ~ a*C1
   C3 ~ C1 + C2
   "
 expect_error(mvpt(lavaan_model = list(corr_model, err_model), path = "C3~C1", data = simData, showplots = TRUE))
@@ -152,25 +189,22 @@ err_model <-
   "
 expect_error(mvpt(lavaan_model = list(corr_model, err_model), path = "C3~C1", data = simData, showplots = TRUE))
 
-## Non-functionality due to list() input with path that is not shared
-expect_error(mvpt(lavaan_model = list(model1, model4), path = "LV3 ~ LV1", data = simData, showplots = TRUE))
+## Non-functionality due to label usage
+err_model <- 
+  "
+  C2 ~ a*C1
+  C3 ~ C1 + C2
+  "
+expect_error(mvpt(lavaan_model = list(corr_model, err_model), path = "C3~C1", data = simData, showplots = TRUE))
 
-## Non-functionality due to basic lavaan error/warning
-set.seed(123); n <- 25
-f1 <- rnorm(n)
-f2 <- 0.80 * f1 + rnorm(n, sd = 0.30)
-y1 <- 1.00 * f1 + rnorm(n, sd = 0.01) ## one nearly perfect indicator
-y2 <- 0.40 * f1 + rnorm(n, sd = 0.30)
-y3 <- 0.40 * f2 + rnorm(n, sd = 0.30)
-y4 <- 0.40 * f2 + rnorm(n, sd = 0.30)
-dat_hey <- data.frame(y1, y2, y3, y4)
-model_hey <- 
-  '
-  f1 =~ y1 + y2
-  f2 =~ y3 + y4
-  f2 ~ f1
-  '
-expect_error(mvpt(lavaan_model = list(model_hey, model_hey), path = "f2 ~ f1", data = dat_hey))
+## Non-functionality due to path misspecification
+expect_error(mvpt(lavaan_model = corr_model, path = "C3->C1", data = simData))
+
+## Non-functionality due to path not being in model
+expect_error(mvpt(lavaan_model = corr_model, path = "C1~C3", data = simData))
+
+## Non-functionality due to list() input and specifying a path that is not shared
+expect_error(mvpt(lavaan_model = list(model1, model4), path = "LV3 ~ LV1", data = simData, showplots = TRUE))
 
 
 #### MAIN FUNCTION: mvptRank(mvpt_output) ####
@@ -178,23 +212,29 @@ expect_error(mvpt(lavaan_model = list(model_hey, model_hey), path = "f2 ~ f1", d
 ## Functionality assuming mvpt() functionality
 expect_silent(mvptRank(mvpt_output))
 
+## Non-functionality assuming non mvpt class
+expect_error(mvptRank(model1_fit))
+
 
 #### MAIN FUNCTION: mvptZoom(mvpt_output, index) ####
 
 ## Functionality assuming mvpt() functionality
 expect_silent(mvptZoom(mvpt_output, index=1))
 
+## Non-functionality assuming non mvpt class
+expect_error(mvptZoom(model1_fit, index=1))
+
 ## Non-functionality due to out of bounds index
 expect_error(mvptZoom(mvpt_output, index=7))
 
 
-
 #### HELPER FUNCTION: dagu(LAV_list, path, reversal) ####
 
-LAV_list <- model1
-LAV_list <- list(model1, model2, model3)
+LAV_list <- "LV3 ~ LV1"
 path <- "LV3 ~ LV1"
-reversal <- FALSE
+
+## Non-functionality message if user-given model is orphan
+expect_message(mvpt:::dagu(LAV_list, path))
 
 
 #### HELPER FUNCTION: auto_sem(fam_lavaan_ready, data, missing = "ml", estimator = "ML") ####

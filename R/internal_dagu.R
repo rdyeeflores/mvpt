@@ -7,7 +7,7 @@
 #' @param reversal Option to allow reversal of given path
 #' @return A model list in dagitty and another in lavaan format
 #' @keywords internal
-dagu <- function(LAV_list, path, reversal = FALSE){
+dagu <- function(LAV_list, path, reversal = FALSE, MEC_only = TRUE){
   
   ## Function separating LAV into regressions and LVs, with former turned to DAGs for FIGURE_list
   ## NOTE: Avoids flipping arrows emanating from LVs to OVs when producing MEC
@@ -43,7 +43,7 @@ dagu <- function(LAV_list, path, reversal = FALSE){
     exo <- setdiff(unique(rhs), unique(lhs)) ## identify exos
     ## Generate all pairwise covs
     covs <- if (length(exo) > 1) {
-      apply(combn(sort(exo), 2), 2, \(x) paste0(x[1], " ~~ 0*", x[2]))
+      apply(utils::combn(sort(exo), 2), 2, \(x) paste0(x[1], " ~~ 0*", x[2]))
     } else character(0)
     existing_covs <- lines[grepl("~~", lines)] ## for user covs
     covs <- setdiff(covs, existing_covs) ## for user covs
@@ -81,6 +81,40 @@ dagu <- function(LAV_list, path, reversal = FALSE){
     }else{
       fam <- subMEC
     }
+    
+    ########################################## NEW 
+    
+    fam_plus_fun <- function(fam, path) {
+      
+      make_dag <- function(g, from, to) {
+        ed <- dagitty::edges(g)
+        g_new <- dagitty::dagitty(paste(
+          "dag {", paste(c(paste(ed$v, ed$e, ed$w), paste(from, "->", to)), collapse = "\n"), "}"
+        ))
+        dagitty::coordinates(g_new) <- dagitty::coordinates(g)
+        g_new
+      }
+      
+      outcome <- trimws(strsplit(path, "~")[[1]][1])
+      new_dags <- list()
+      for (g in fam) {
+        ed <- dagitty::edges(g)
+        nodes <- names(dagitty::coordinates(g)$x)
+        desc  <- dagitty::descendants(g, outcome)
+        pars  <- ed$v[ed$w == outcome & ed$e == "->"]
+        candidates <- setdiff(nodes, c(outcome, desc, pars))
+        for (node in candidates) {
+          new_dags[[length(new_dags) + 1]] <- make_dag(g, node, outcome)
+        }
+      }
+      c(fam, new_dags)
+    }
+    
+    if(MEC_only==FALSE){
+      fam <- fam_plus_fun(fam, path)
+    }
+    
+    ############################################
     
     ## Turning fam list into lavaan syntax list, and adding the same previously split-off LVs (if any)
     fam_lavaan_ready <- list()
