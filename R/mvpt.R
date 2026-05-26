@@ -46,21 +46,21 @@ mvpt <- function(lavaan_model,
     tryCatch(
       sem(LAV_list[[i]], data = data, do.fit = TRUE, auto.cov.lv.x = FALSE),
       error = function(e) {
-        stop(conditionMessage(e), "\nError returned by lavaan. Run lavaan_model and data in lavaan first, fix the issue reported, and only retry mvpt() once there is no error. ", call. = FALSE)},
+        stop(conditionMessage(e), "\nError returned by lavaan. Run models and data in lavaan first, fix the issue reported, and retry mvpt() once there is no error.", call. = FALSE)},
       warning = function(w) {
-        stop(conditionMessage(w), "\nWarning retuned by lavaan. Try running lavaan_model and data directly in lavaan, reviewing, and fixing before retrying mvpt().", call. = FALSE)}
+        stop(conditionMessage(w), "\nWarning retuned by lavaan. Try running models and data directly in lavaan, reviewing, and fixing before retrying mvpt().", call. = FALSE)}
       )
   }
   
   ## STOP: Model(s) include covariance parameters (update pending)
   if (any(vapply(LAV_list, function(x) grepl("~~", x), logical(1)))) {
-    stop("Covariance parameters (`~~`) are not allowed in this version of mvpt().")
+    stop('Covariance parameters ("~~") are not allowed in this version of mvpt().')
   }
   
   ## STOP: Model(s) include parameter labels
   ## NOTE: Using '\\*' because '*' does not work at identifying models with labels
   if (any(vapply(LAV_list, function(x) grepl("\\*", x), logical(1)))) {
-    stop("Model syntax includes parameter labels, which are automatically removed by dagitty::lavaanToGraph. Before running mvpt(), please remove all labels from your lavaan-formatted model and use tilde-notation for the path argument (e.g., 'Y ~ X').")
+    stop('Model syntax includes parameter labels, which are not used in mvpt(). Labels are removed during conversion from lavaan to dagitty format. Please remove all labels from your any lavaan-formatted models and use tilde-notation for the any path argument (e.g., "Y ~ X").')
   }
   
   ## STOP: Specified path is in not in correct tilde notation
@@ -68,7 +68,7 @@ mvpt <- function(lavaan_model,
   if (!is.character(path) ||
       length(path) != 1 ||
       !grepl("^[A-Za-z][A-Za-z0-9._]*~[A-Za-z][A-Za-z0-9._]*$", path_no_space)) {
-    stop('Specified path must be a character string, for example: "Y ~ X".')
+    stop('Specified path must be a character string in tilde-notation, with only two variables and a tilde between them (e.g., "Y ~ X").')
   }
   
   ## STOP: Specified path is not in model(s)
@@ -79,7 +79,7 @@ mvpt <- function(lavaan_model,
   }
   ok <- vapply(LAV_list, has_path, logical(1), path = path)
   if (!all(ok)) {
-    stop("Specified path must be present in model specification." )
+    stop("Specified path missing from model. Make sure this one path is part of any associated model specification." )
   }
   
   ## Subsetting to observed variables only (whether with or without LVs) 
