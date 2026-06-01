@@ -4,14 +4,12 @@
 \alias{vw_core}
 \title{Calculate Vuong-Wald Core MVP Test Statistic (Internal)}
 \usage{
-vw_core(SEMfitted_list, path, reversal = FALSE)
+vw_core(SEMfitted_list, path)
 }
 \arguments{
 \item{SEMfitted_list}{A list of lavaan-fitted SEMs}
 
 \item{path}{A lavaan syntax path}
-
-\item{reversal}{Option to allow reversal of given path}
 }
 \value{
 List of lists and more test components

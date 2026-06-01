@@ -4,14 +4,12 @@
 \alias{dagu}
 \title{DAG Utility for Model Auto-Generation (Internal)}
 \usage{
-dagu(LAV_list, path, reversal = FALSE, MEC_only = TRUE)
+dagu(LAV_list, path, MEC_only = TRUE)
 }
 \arguments{
 \item{LAV_list}{One or more lavaan syntax models in a list}
 
 \item{path}{A lavaan syntax path}
-
-\item{reversal}{Option to allow reversal of given path}
 }
 \value{
 A model list in dagitty and another in lavaan format

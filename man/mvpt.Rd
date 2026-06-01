@@ -4,14 +4,7 @@
 \alias{mvpt}
 \title{Run MVPT}
 \usage{
-mvpt(
-  lavaan_model,
-  path,
-  data,
-  showplots = FALSE,
-  reversal = FALSE,
-  MEC_only = TRUE
-)
+mvpt(lavaan_model, path, data, showplots = FALSE, MEC_only = TRUE)
 }
 \arguments{
 \item{lavaan_model}{An SEM in lavaan syntax.}
