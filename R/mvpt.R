@@ -35,8 +35,10 @@ mvpt <- function(lavaan_model,
                  path, 
                  data, 
                  showplots = FALSE,
-                 reversal = FALSE, 
                  MEC_only = TRUE){
+  
+  ## Default options
+  reversal = FALSE
   
   ## Generalized lavaan_model for use with single model or list()
   LAV_list <- if (is.list(lavaan_model)) lavaan_model else list(lavaan_model) ## list() no matter class

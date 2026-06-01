@@ -4,10 +4,12 @@
 #'
 #' @param SEMfitted_list A list of lavaan-fitted SEMs
 #' @param path A lavaan syntax path
-#' @param reversal Option to allow reversal of given path
 #' @return List of lists and more test components
 #' @keywords internal
-vw_core <- function(SEMfitted_list, path, reversal = FALSE){
+vw_core <- function(SEMfitted_list, path){
+  
+  ## Default options
+  reversal = FALSE
   
   ## Number of observations and models
   n <- nobs(SEMfitted_list[[1]])

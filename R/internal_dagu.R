@@ -4,10 +4,12 @@
 #'
 #' @param LAV_list One or more lavaan syntax models in a list 
 #' @param path A lavaan syntax path
-#' @param reversal Option to allow reversal of given path
 #' @return A model list in dagitty and another in lavaan format
 #' @keywords internal
-dagu <- function(LAV_list, path, reversal = FALSE, MEC_only = TRUE){
+dagu <- function(LAV_list, path, MEC_only = TRUE){
+  
+  ## Default options
+  reversal = FALSE
   
   ## Function separating LAV into regressions and LVs, with former turned to DAGs for FIGURE_list
   ## NOTE: Avoids flipping arrows emanating from LVs to OVs when producing MEC
