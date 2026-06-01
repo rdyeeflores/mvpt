@@ -11,7 +11,9 @@ print.mvpt <- function(x, ...) {
   FIGURE_list <- x[[1]]
   CORE_comp <- x[[3]]
   showplots <- x[[4]]
-  reversal <- x[[5]]
+  
+  ## Default options
+  reversal = FALSE
   
   ## CORE components 
   M <- CORE_comp$M

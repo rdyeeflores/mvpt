@@ -97,7 +97,7 @@ mvpt <- function(lavaan_model,
   ))} 
   
   ## Using dagu() to get fam and fam_lavaan_ready (to produce figures and lavaan-fitted models)
-  dagu <- dagu(LAV_list, path, reversal, MEC_only)
+  dagu <- dagu(LAV_list, path, MEC_only)
   if(is.null(dagu)){ return(invisible(NULL)) } ## needed because messages dont exit
   
   ## FIGURE_list to house all ggdag figures, tailoring via ggplot
@@ -122,10 +122,10 @@ mvpt <- function(lavaan_model,
   SEMfitted_list <- auto_sem(fam_lavaan_ready, data_sub)
   
   ## CORE test components
-  CORE_comp <- vw_core(SEMfitted_list, path, reversal)
+  CORE_comp <- vw_core(SEMfitted_list, path)
   
   ## OUTPUT: Via print() method 
-  output <- list(FIGURE_list=FIGURE_list, SEMfitted_list=SEMfitted_list, CORE_comp=CORE_comp, showplots=showplots, reversal=reversal)
+  output <- list(FIGURE_list=FIGURE_list, SEMfitted_list=SEMfitted_list, CORE_comp=CORE_comp, showplots=showplots)
   class(output) <- "mvpt"
   output
   
