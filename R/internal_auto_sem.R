@@ -16,13 +16,25 @@ auto_sem <- function(fam_lavaan_ready, data, missing = "ml", estimator = "ML"){
   
   ## NOTE: Stop function for lavaan error/warning already at start of mvpt() 
   fit_list <- list()
-  for (i in 1:length(fam_lavaan_ready)) {
-    fit_list[[i]] <- sem(model = fam_lavaan_ready[[i]], 
-                         data = data, 
-                         fixed.x = FALSE,
-                         missing = missing,
-                         estimator = estimator) 
+  for (i in seq_along(fam_lavaan_ready)) {
+    
+    fit_list[[i]] <- withCallingHandlers(
+      sem(model = fam_lavaan_ready[[i]], 
+          data = data, 
+          fixed.x = FALSE,
+          missing = missing,
+          estimator = estimator,
+          auto.cov.lv.x = FALSE),
+      
+      message = function(m) {
+        message("[Model ", i, "] ", conditionMessage(m))
+        invokeRestart("muffleMessage")},
+      warning = function(w) {
+        warning("[Model ", i, "] ", conditionMessage(w), call. = FALSE)
+        invokeRestart("muffleWarning")}
+    )
   }
+
   fit_list  
 }
 

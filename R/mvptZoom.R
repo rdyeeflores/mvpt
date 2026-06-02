@@ -38,11 +38,21 @@ mvptZoom <- function(mvpt_output, index){
     stop("'index' must be a single integer value from 1 up to the total number of compared SEMs.")
   }
   
-  SEMfitted_list <- mvpt_output[[2]]
-  FIGURE_list <- mvpt_output[[1]]
+  fam_lavaan_ready <- mvpt_output$fam_lavaan_ready
+  SEMfitted_list <- mvpt_output$SEMfitted_list
+  FIGURE_list <- mvpt_output$FIGURE_list
   
-  list(summary(SEMfitted_list[[index]], standardized = TRUE, fit.measures = TRUE),
-       FIGURE_list[[index]]
-  )
+  ##list(fam_lavaan_ready[[index]],
+  ##     summary(SEMfitted_list[[index]], standardized = TRUE, fit.measures = TRUE),
+    ##   FIGURE_list[[index]]
+  ##)
+  
+  cat(sprintf("\nModel %d Specification\n---------------------\n", index))
+  #cat(unlist(fam_lavaan_ready[[index]]))
+  cat(sprintf('"\n%s\n"\n', unlist(fam_lavaan_ready[[index]])))
+  cat(sprintf("\nModel %d Summary\n---------------\n", index))
+  print(summary(SEMfitted_list[[index]], standardized = TRUE, fit.measures = TRUE))
+  print(FIGURE_list[[index]])
+  
   
 }

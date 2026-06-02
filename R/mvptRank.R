@@ -30,15 +30,23 @@ mvptRank <- function(mvpt_output){
     stop("'mvpt_output' must be an object of class 'mvpt'.")
   }
   
-  CORE_comp <- mvpt_output[[3]]
+  CORE_comp <- mvpt_output$CORE_comp
+  
   vals <- CORE_comp$sharedparamvals
   groups <- split(names(vals), vals)
   ranked_groups <- groups[order(as.numeric(names(groups)))]
   
-  out <- unname(cbind(
-    as.numeric(names(ranked_groups)),
-    vapply(groups, paste, collapse = ", ", character(1))
-  ))
-  out
+  ##out <- unname(cbind(
+    ##as.numeric(names(ranked_groups)),
+  ##  vapply(groups, paste, collapse = ", ", character(1))
+  ##))
+  ##out
+  out <- data.frame(
+    "Path values" = as.numeric(names(ranked_groups)),
+    "Models" = vapply(ranked_groups, paste, collapse = ", ", character(1)),
+    check.names = FALSE
+  )
   
+  rownames(out) <- NULL
+  out
 }

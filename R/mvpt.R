@@ -46,7 +46,7 @@ mvpt <- function(lavaan_model,
   ## STOP: Model(s) generating lavaan-based error or warning
   for (i in seq_along(LAV_list)) {
     tryCatch(
-      sem(LAV_list[[i]], data = data, do.fit = TRUE, auto.cov.lv.x = FALSE),
+      sem(LAV_list[[i]], data = data, do.fit = TRUE), ##, auto.cov.lv.x = FALSE),
       error = function(e) {
         stop(conditionMessage(e), "\nError returned by lavaan. Run models and data in lavaan first, fix the issue reported, and retry mvpt() once there is no error.", call. = FALSE)},
       warning = function(w) {
@@ -56,7 +56,7 @@ mvpt <- function(lavaan_model,
   
   ## STOP: Model(s) include covariance parameters (update pending)
   if (any(vapply(LAV_list, function(x) grepl("~~", x), logical(1)))) {
-    stop('Covariance parameters ("~~") are not allowed in this version of mvpt().')
+    stop('Covariance parameters ("~~") are not allowed in the specified model input for this version of mvpt().')
   }
   
   ## STOP: Model(s) include parameter labels
@@ -65,7 +65,7 @@ mvpt <- function(lavaan_model,
     stop('Model syntax includes parameter labels, which are not used in mvpt(). Labels are removed during conversion from lavaan to dagitty format. Please remove all labels from your any lavaan-formatted models and use tilde-notation for the any path argument (e.g., "Y ~ X").')
   }
   
-  ## STOP: Specified path is in not in correct tilde notation
+  ## STOP: Specified path is in not in correct tilde-notation
   path_no_space <- gsub("\\s+", "", path)
   if (!is.character(path) ||
       length(path) != 1 ||
@@ -125,7 +125,11 @@ mvpt <- function(lavaan_model,
   CORE_comp <- vw_core(SEMfitted_list, path)
   
   ## OUTPUT: Via print() method 
-  output <- list(FIGURE_list=FIGURE_list, SEMfitted_list=SEMfitted_list, CORE_comp=CORE_comp, showplots=showplots)
+  output <- list(FIGURE_list=FIGURE_list, 
+                 fam_lavaan_ready=fam_lavaan_ready,
+                 SEMfitted_list=SEMfitted_list, 
+                 CORE_comp=CORE_comp, 
+                 showplots=showplots)
   class(output) <- "mvpt"
   output
   

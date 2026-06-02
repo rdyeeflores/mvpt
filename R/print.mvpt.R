@@ -8,9 +8,9 @@
 #' @export
 print.mvpt <- function(x, ...) { 
   
-  FIGURE_list <- x[[1]]
-  CORE_comp <- x[[3]]
-  showplots <- x[[4]]
+  FIGURE_list <- x$FIGURE_list
+  CORE_comp   <- x$CORE_comp
+  showplots   <- x$showplots
   
   ## Default options
   reversal = FALSE
@@ -25,11 +25,11 @@ print.mvpt <- function(x, ...) {
   p.val <- CORE_comp$p.val           
   
   ## Message  
-  cat(sprintf("Including the given model, %d SEMs were compared \nin an MVPT using a dataset of %d observations. \nTest results across these models were based on the \nspecified path: %s\n", M, n, path))
+  cat(sprintf("Including the given model, %d SEMs were compared \nin an MVPT using a dataset of %d observations. \nTest results across these models were based on \nthe specified path: %s\n", M, n, path))
   cat("\n")
   cat("MVPT Results\n")
-  cat("------------------\n")
-  cat(sprintf("Overall chi-square = %.2f, df = %.0f        (p = %.3f)\n\n", CHI.sq, df, p.val))
+  cat("------------\n")
+  cat(sprintf("Overall chi-square = %.2f, df = %.0f   (p = %.3f)\n\n", CHI.sq, df, p.val))
   if(reversal){
     cat("Path values per model (standardized data):\n")
   }else{

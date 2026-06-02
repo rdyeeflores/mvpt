@@ -86,7 +86,7 @@ dagu <- function(LAV_list, path, MEC_only = TRUE){
     
     ########################################## NEW 
     
-    fam_plus_fun <- function(fam, path) {
+    fam_plus <- function(fam, path) {
       
       make_dag <- function(g, from, to) {
         ed <- dagitty::edges(g)
@@ -112,16 +112,19 @@ dagu <- function(LAV_list, path, MEC_only = TRUE){
       c(fam, new_dags)
     }
     
-    if(MEC_only==FALSE){
-      fam <- fam_plus_fun(fam, path)
+    if(MEC_only == FALSE){
+      fam <- fam_plus(fam, path)
     }
     
     ############################################
     
     ## Turning fam list into lavaan syntax list, and adding the same previously split-off LVs (if any)
+    ## NOTE: convert() adds to output: # Please set lavaan's fixed.x appopriately!
     fam_lavaan_ready <- list()
     for (i in 1:length(fam)) {
-      fam_lavaan_ready[[i]] <- paste(c(convert(fam[[i]], to="lavaan"), split_syntax_list[[1]]$LVs), collapse = "\n")
+      conv <- convert(fam[[i]], to = "lavaan")
+      conv <- sub("^# Please set lavaan's fixed\\.x appopriately!\\n?", "", conv) ## typo from convert()
+      fam_lavaan_ready[[i]] <- paste(c(conv, split_syntax_list[[1]]$LVs), collapse = "\n")
     }
     fam_lavaan_ready <- lapply(fam_lavaan_ready, add_zero_exo_covs) ## adding "0" covariances
     
