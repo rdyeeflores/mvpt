@@ -14,8 +14,9 @@ auto_sem <- function(fam_lavaan_ready, data, missing = "ml", estimator = "ML"){
     stop("The default missing = 'ml' and estimator = 'ML' arguments cannot currently be changed.")
   }
   
-  ## NOTE: Stop function for lavaan error/warning already at start of mvpt() 
+  ## NOTE: Indexing message and warning, BUT stopping upon fit fail 
   fit_list <- list()
+  failed_models <- integer()
   for (i in seq_along(fam_lavaan_ready)) {
     
     fit_list[[i]] <- withCallingHandlers(
@@ -33,8 +34,23 @@ auto_sem <- function(fam_lavaan_ready, data, missing = "ml", estimator = "ML"){
         warning("[Model ", i, "] ", conditionMessage(w), call. = FALSE)
         invokeRestart("muffleWarning")}
     )
+    
+    if (!isTRUE(lavaan::lavInspect(fit_list[[i]], "converged"))) {
+      failed_models <- c(failed_models, i)
+    }
+    
   }
-
+  
+  ## STOP: At least one model failed to converge
+  if (length(failed_models) > 0) {
+    stop(
+      "An MVPT could not be computed because Model(s) ",
+      paste(failed_models, collapse = ", "),
+      " failed to converge.",
+      call. = FALSE
+    )
+  }
+  
   fit_list  
 }
 

@@ -1,6 +1,6 @@
 #' DAG Utility for Model Auto-Generation (Internal)
 #'
-#' Takes one model and path in lavaan syntax, auto-generates the MEC, then gets subMEC_lavaan_ready.
+#' Takes one model and path in lavaan syntax, auto-generates MEC, then gets subMEC_lavaan_ready.
 #'
 #' @param LAV_list One or more lavaan syntax models in a list 
 #' @param path A lavaan syntax path
@@ -84,7 +84,7 @@ dagu <- function(LAV_list, path, MEC_only = TRUE){
       fam <- subMEC
     }
     
-    ########################################## NEW 
+    ########################################## NEW: MEC_only = FALSE code
     
     fam_plus <- function(fam, path) {
       

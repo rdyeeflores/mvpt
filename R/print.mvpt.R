@@ -33,7 +33,7 @@ print.mvpt <- function(x, ...) {
   if(reversal){
     cat("Path values per model (standardized data):\n")
   }else{
-    cat("Path values per model:\n")  
+    cat("Standardized path value per model:\n")  
   }
   
   print(sharedparamvals)

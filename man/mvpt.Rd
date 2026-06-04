@@ -4,28 +4,30 @@
 \alias{mvpt}
 \title{Run MVPT}
 \usage{
-mvpt(lavaan_model, path, data, showplots = FALSE, MEC_only = TRUE)
+mvpt(lavaan_input, path, data, showplots = FALSE, MEC_only = TRUE)
 }
 \arguments{
-\item{lavaan_model}{An SEM in lavaan syntax.}
+\item{lavaan_input}{An SEM or list() of SEMs in lavaan syntax.}
 
 \item{path}{The path to be tested within the given SEM. This must also be in lavaan syntax (eg: "Y ~ X").}
 
 \item{data}{A data frame to fit the given SEM, and all other SEMs that may be auto-generated.}
 
 \item{showplots}{Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first (top-left). This figure is for quick inspection of model specification differences.}
+
+\item{MEC_only}{Default is TRUE, but setting to FALSE allows additional models with arrows that feed into the specifed path outcome variable. This increases path sensitivity and potentially finds meaningful paths to include.}
 }
 \value{
 An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVPT components.
 }
 \description{
-Using the model specification of a SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function auto-generates multiple other models with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. After auto-generation, this function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
+Using the specification of a single SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function can auto-generate multiple other SEMs with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. This function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output. [NOTE: Users can also by-pass model auto-generation by supplying a list() of SEMs]
 }
 \examples{
 \dontrun{
 data(PoliticalDemocracy, package = "lavaan")
 
-lavaan_model <- 
+lavaan_input <- 
   "
   ## latent variables
   ind60 =~ x1 + x2 + x3
@@ -38,7 +40,7 @@ lavaan_model <-
   
 path <- "dem60 ~ ind60"
 
-mvpt_output <- mvpt(lavaan_model, 
+mvpt_output <- mvpt(lavaan_input, 
                     path, 
                     data = PoliticalDemocracy, 
                     showplots = TRUE)

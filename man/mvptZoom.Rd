@@ -12,7 +12,7 @@ mvptZoom(mvpt_output, index)
 \item{index}{Model index for list of compared models. Model 1 is always the given model.}
 }
 \description{
-Follow-up function to see figure and lavaan output for a single SEM.
+Follow-up function to see lavaan syntax, lavaan summary, and figure for a single SEM.
 }
 \examples{
 \dontrun{

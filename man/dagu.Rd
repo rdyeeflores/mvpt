@@ -15,6 +15,6 @@ dagu(LAV_list, path, MEC_only = TRUE)
 A model list in dagitty and another in lavaan format
 }
 \description{
-Takes one model and path in lavaan syntax, auto-generates the MEC, then gets subMEC_lavaan_ready.
+Takes one model and path in lavaan syntax, auto-generates MEC, then gets subMEC_lavaan_ready.
 }
 \keyword{internal}

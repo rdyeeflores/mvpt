@@ -38,8 +38,15 @@ vw_core <- function(SEMfitted_list, path){
   SIGMA <- prev_rows
   
   ## Computing a Wald CHI-square test (H matrix now reversal dependent)
-  THETA  <- NULL
-  for (i in 1:M) {THETA <- c(THETA, coef(SEMfitted_list[[i]]))}
+  ## NOTE: New dual version w THETA for stat computation and stnd_THETA for output
+  THETA <- unlist(lapply(SEMfitted_list, coef))
+  stnd_THETA <- unlist(lapply(SEMfitted_list, function(fit) {
+    theta <- coef(fit)
+    pe <- parameterEstimates(fit, standardized = TRUE)
+    par_names <- paste(pe$lhs, pe$op, pe$rhs, sep = "")
+    vals <- pe$std.all[match(names(theta), par_names)]
+    setNames(vals, names(theta))
+  }))
   path <- as.character(gsub(" ", "", path))
   rev_path <- paste(rev(strsplit(path, "~")[[1]]), collapse = "~")
   if(reversal){
@@ -56,9 +63,9 @@ vw_core <- function(SEMfitted_list, path){
   
   ## Collecting shared path values from each model in a new vector (reversal dependent)
   if(reversal){
-    sharedparamvals <- THETA[names(THETA) == path | names(THETA) == rev_path]
+    sharedparamvals <- stnd_THETA[names(stnd_THETA) == path | names(stnd_THETA) == rev_path]
   }else{
-    sharedparamvals <- THETA[names(THETA) == path]
+    sharedparamvals <- stnd_THETA[names(stnd_THETA) == path]
   }
 
   ## Assigning an "M#" labels for each model
