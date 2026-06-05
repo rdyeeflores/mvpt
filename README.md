@@ -2,7 +2,7 @@
 
 An R package for learning about path value sensitivity across multiple, automatically generated SEMs. You can use mvpt() by supplying a lavaan-formatted model, a path to be tested, and data. 
 
-Output will show the number of compared models (your model + all auto-generated models), the path value estimated in each model, and whether path value estimation significantly changed across these models. If no change is detected, path value estimation can be interpreted as robust despite the model specification differences among the compared models. But if change is detected, this is indicative that a valuable model specification change may be possible. 
+Output will include the number of compared models (your model + all auto-generated models), the path value estimated in each model, and whether path value estimation significantly changed across these models. If no change is detected, path value estimation can be interpreted as robust despite the model specification differences among the compared models. But if change is detected, this indicates that a valuable model specification change may be possible. 
 
 ## Installation
 
@@ -17,29 +17,36 @@ library(mvpt)
 
 ## Usage
 
-To an idea of how mvpt works using lavaan-formatted SEMs, consider the following example using the Political Democracy Example from 
-Bollen's 1989 book:
+To get an idea of how mvpt works using lavaan-formatted SEMs, consider the following example:
 
 ```R
-data(PoliticalDemocracy, package = "lavaan")
 
-lavaan_model <- 
-   "
-   ## latent variables
-     ind60 =~ x1 + x2 + x3
-     dem60 =~ y1 + y2 + y3 + y4
-     dem65 =~ y5 + y6 + y7 + y8
-   ## regressions
-     dem60 ~ ind60
-     dem65 ~ ind60 + dem60
-   "
+data("UnfairApprais")
 
-path <- "dem60 ~ ind60"
+lavaan_input <-
+  "
+  ## latent variables
+  Rumi =~ rumi1 + rumi2
+  Angr =~ anger1 + anger1
+  UnApp =~ unfair1 + unfair2
+  ## regressions
+  Aggr ~ Angr + Rumi
+  Rumi ~ Angr + UnApp
+  Angr ~ UnApp
+  "
 
-mvpt_output <- mvpt(lavaan_model, 
-                    path, 
-                    data = PoliticalDemocracy, 
+## path test 1
+mvpt_path1 <- mvpt(lavaan_input, 
+                    path = "Rumi~UnApp", 
+                    data = UnfairApprais, 
                     showplots = TRUE)
-mvpt_output
+mvpt_path1 
+
+## path test 2
+mvpt_path2 <- mvpt(lavaan_input, 
+                    path = "Aggr~Rumi", 
+                    data = UnfairApprais, 
+                    showplots = TRUE)
+mvpt_path2 
 
 ```

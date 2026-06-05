@@ -6,23 +6,28 @@
 #' @param index Model index for list of compared models. Model 1 is always the given model.
 #' @examples
 #' \dontrun{
-#' data(PoliticalDemocracy, package = "lavaan")
 #' 
-#' lavaan_model <- 
+#' data("UnfairApprais")
+#' 
+#' lavaan_input <-
 #'   "
 #'   ## latent variables
-#'   ind60 =~ x1 + x2 + x3
-#'   dem60 =~ y1 + y2 + y3 + y4
-#'   dem65 =~ y5 + y6 + y7 + y8
+#'   Rumi =~ rumi1 + rumi2
+#'   Angr =~ anger1 + anger1
+#'   UnApp =~ unfair1 + unfair2
 #'   ## regressions
-#'   dem60 ~ ind60
-#'   dem65 ~ ind60 + dem60
+#'   Aggr ~ Angr + Rumi
+#'   Rumi ~ Angr + UnApp
+#'   Angr ~ UnApp
 #'   "
-#'   
-#' path <- "dem60 ~ ind60"
 #' 
-#' mvpt_output <- mvpt(lavaan_model, path, data = PoliticalDemocracy)
-#' mvptZoom(mvpt_output, index = 5)}
+#' mvpt_path1 <- mvpt(lavaan_input, 
+#'                    path = "Rumi~UnApp", 
+#'                    data = UnfairApprais, 
+#'                    showplots = TRUE)
+#' mvpt_path1 
+#' mvptZoom(mvpt_path1, index = 3)
+#' }
 #' @export
 mvptZoom <- function(mvpt_output, index){
   

@@ -5,23 +5,28 @@
 #' @param mvpt_output Output from mvpt().
 #' @examples
 #' \dontrun{
-#' data(PoliticalDemocracy, package = "lavaan")
 #' 
-#' lavaan_model <- 
+#' data("UnfairApprais")
+#' 
+#' lavaan_input <-
 #'   "
 #'   ## latent variables
-#'   ind60 =~ x1 + x2 + x3
-#'   dem60 =~ y1 + y2 + y3 + y4
-#'   dem65 =~ y5 + y6 + y7 + y8
+#'   Rumi =~ rumi1 + rumi2
+#'   Angr =~ anger1 + anger1
+#'   UnApp =~ unfair1 + unfair2
 #'   ## regressions
-#'   dem60 ~ ind60
-#'   dem65 ~ ind60 + dem60
+#'   Aggr ~ Angr + Rumi
+#'   Rumi ~ Angr + UnApp
+#'   Angr ~ UnApp
 #'   "
-#'   
-#' path <- "dem60 ~ ind60"
 #' 
-#' mvpt_output <- mvpt(lavaan_model, path, data = PoliticalDemocracy)
-#' mvptRank(mvpt_output)}
+#' mvpt_path1 <- mvpt(lavaan_input, 
+#'                    path = "Rumi~UnApp", 
+#'                    data = UnfairApprais, 
+#'                    showplots = TRUE)
+#' mvpt_path1 
+#' mvptRank(mvpt_path1)
+#' }
 #' @export
 mvptRank <- function(mvpt_output){
   

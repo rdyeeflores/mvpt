@@ -10,26 +10,34 @@
 #' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVPT components. 
 #' @examples
 #' \dontrun{
-#' data(PoliticalDemocracy, package = "lavaan")
 #' 
-#' lavaan_input <- 
+#' data("UnfairApprais")
+#' 
+#' lavaan_input <-
 #'   "
 #'   ## latent variables
-#'   ind60 =~ x1 + x2 + x3
-#'   dem60 =~ y1 + y2 + y3 + y4
-#'   dem65 =~ y5 + y6 + y7 + y8
+#'   Rumi =~ rumi1 + rumi2
+#'   Angr =~ anger1 + anger1
+#'   UnApp =~ unfair1 + unfair2
 #'   ## regressions
-#'   dem60 ~ ind60
-#'   dem65 ~ ind60 + dem60
+#'   Aggr ~ Angr + Rumi
+#'   Rumi ~ Angr + UnApp
+#'   Angr ~ UnApp
 #'   "
-#'   
-#' path <- "dem60 ~ ind60"
 #' 
-#' mvpt_output <- mvpt(lavaan_input, 
-#'                     path, 
-#'                     data = PoliticalDemocracy, 
-#'                     showplots = TRUE)
-#' mvpt_output
+#' ## path test 1
+#' mvpt_path1 <- mvpt(lavaan_input, 
+#'                    path = "Rumi~UnApp", 
+#'                    data = UnfairApprais, 
+#'                    showplots = TRUE)
+#' mvpt_path1 
+#' 
+#' ## path test 2
+#' mvpt_path2 <- mvpt(lavaan_input, 
+#'                    path = "Aggr~Rumi", 
+#'                    data = UnfairApprais, 
+#'                    showplots = TRUE)
+#' mvpt_path2
 #' }
 #' @export
 mvpt <- function(lavaan_input, 
