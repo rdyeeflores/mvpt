@@ -1,6 +1,6 @@
 #' mvpt() Follow-up: View Single Model
 #' 
-#' Follow-up function to see lavaan syntax, lavaan summary, and figure for a single SEM.
+#' Follow-up function to see lavaan syntax, summary, and figure for a single SEM.
 #' 
 #' @param mvpt_output Output from mvpt().
 #' @param index Model index for list of compared models. Model 1 is always the given model.
@@ -52,7 +52,7 @@ mvptZoom <- function(mvpt_output, index){
   cat(sprintf("\nModel %d Specification\n---------------------\n", index))
   cat(sprintf('"\n%s\n"\n', unlist(fam_lavaan_ready[[index]])))
   cat(sprintf("\nModel %d Summary\n---------------\n", index))
-  print(summary(SEMfitted_list[[index]], fit.measures = TRUE, standardized=TRUE)) ## dropped standardization for now
+  print(summary(SEMfitted_list[[index]], fit.measures = TRUE, standardized=TRUE)) 
   print(FIGURE_list[[index]])
   
   

@@ -2,7 +2,7 @@
 
 An R package for learning about path value sensitivity across multiple, automatically generated SEMs. You can use mvpt() by supplying a lavaan-formatted model, a path to be tested, and data. 
 
-Output will include the number of compared models (your model + all auto-generated models), the path value estimated in each model, and whether path value estimation significantly changed across these models. If no change is detected, path value estimation can be interpreted as robust despite the model specification differences among the compared models. But if change is detected, this indicates that a valuable model specification change may be possible. 
+Output includes the number of compared models (your model + all auto-generated models), the path value estimated in each model, and whether path value estimation significantly changed across these models. If no change is detected, path value estimation can be interpreted as robust despite the model specification differences among the compared models. But if change is detected, this suggests that a valuable model specification change may be possible. 
 
 ## Installation
 

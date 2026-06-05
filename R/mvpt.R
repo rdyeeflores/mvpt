@@ -1,12 +1,14 @@
 #' Run MVPT
 #' 
-#' Using the specification of a single SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function can auto-generate multiple other SEMs with the same single path by only using the graphical features of the given SEM. Auto-generated models will share the same fit statistics as the given SEM (Verma & Pearl, 1991), though suggest differing relationships between variables. This function then uses the supplied data to fit all models using the same settings (limited to maximum likelihood estimation for now), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output. [NOTE: Users can also by-pass model auto-generation by supplying a list() of SEMs]
+#' Using the specification of a single SEM and single path within that SEM, both in \pkg{lavaan} syntax, this function can auto-generate multiple other SEMs with the same single path by only using the graphical features of the given SEM (Verma & Pearl, 1991). Auto-generated models will share the same fit statistics as the given SEM, though suggest differing relationships between variables. This function then uses the supplied data to fit all models using the same settings (maximum likelihood estimation), followed by a chi-square test across models for significant value changes in the specified path. The given model will always be indexed first and appear as "M1" in the output.
+#' 
+#' If a user already has a set of SEMs to compare, model auto-generation can be bypassed by supplying a list() of SEMs for the lavaan_input argument. Testing would then be limited to these given models.
 #' 
 #' @param lavaan_input An SEM or list() of SEMs in lavaan syntax.  
-#' @param path The path to be tested within the given SEM. This must also be in lavaan syntax (eg: "Y ~ X").
-#' @param data A data frame to fit the given SEM, and all other SEMs that may be auto-generated. 
-#' @param showplots Whether to show a parameter-free figure containing all the compared SEMs, with the user-supplied model always first (top-left). This figure is for quick inspection of model specification differences. 
-#' @param MEC_only Default is TRUE, but setting to FALSE allows additional models with arrows that feed into the specifed path outcome variable. This increases path sensitivity and potentially finds meaningful paths to include.
+#' @param path The path to be tested. This must also be in lavaan syntax (eg: "Y ~ X").
+#' @param data A data frame to fit any given SEM, including others that may be auto-generated. 
+#' @param showplots Whether to show a parameter-free figure containing all the compared SEMs (with "M1" first). This figure is for quick inspection of model specification differences. 
+#' @param MEC_only Default is TRUE, but setting to FALSE allows additional models with arrows that feed into the specified path outcome variable. 
 #' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVPT components. 
 #' @examples
 #' \dontrun{
