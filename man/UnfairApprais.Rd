@@ -17,17 +17,16 @@ A data frame with 7 variables:
 }
 }
 \source{
-Data collected by Ronald D. Yee-Flores.
+Data collected as part of a research study at California State University.
 }
 \usage{
 UnfairApprais
 }
 \description{
-Data from an unpublished study examining relations among
-perceived unfairness, anger, rumination, and retaliatory aggression.
+Data from a study examining appraised unfairness, anger, rumination, and retaliatory aggression.
 }
 \details{
-The data is a subset from a larger study, and  intended for 
+The data is a subset from a larger project, and  intended for 
 MVPT demonstration.
 }
 \examples{

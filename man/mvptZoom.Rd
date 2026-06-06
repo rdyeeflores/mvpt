@@ -9,7 +9,7 @@ mvptZoom(mvpt_output, index)
 \arguments{
 \item{mvpt_output}{Output from mvpt().}
 
-\item{index}{Model index for list of compared models. Model 1 is always the given model.}
+\item{index}{Model index for list of compared models. User-provided models are always indexed first.}
 }
 \description{
 Follow-up function to see lavaan syntax, summary, and figure for a single SEM.
