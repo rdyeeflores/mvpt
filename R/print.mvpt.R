@@ -42,7 +42,7 @@ print.mvpt <- function(x, ...) {
   if(showplots){
     
     ## FIGURE list into grid
-    wrap <- patchwork::wrap_plots(FIGURE_list, ncol = 2)
+    wrap <- patchwork::wrap_plots(FIGURE_list, ncol = 3)
     print(wrap)
     
   }
