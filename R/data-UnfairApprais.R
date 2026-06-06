@@ -1,7 +1,6 @@
 #' Unfairness Appraisal Dataset
 #'
-#' Data from an unpublished study examining relations among
-#' perceived unfairness, anger, rumination, and retaliatory aggression.
+#' Data from a study examining appraised unfairness, anger, rumination, and retaliatory aggression.
 #'
 #' @format A data frame with 7 variables:
 #' \describe{
@@ -15,10 +14,10 @@
 #' }
 #'
 #' @details
-#' The data is a subset from a larger study, and  intended for 
+#' The data is a subset from a larger project, and  intended for 
 #' MVPT demonstration.
 #'
-#' @source Data collected by Ronald D. Yee-Flores.
+#' @source Data collected as part of a research study at California State University. 
 #'
 #' @references None. Data have not yet been published.
 #'
