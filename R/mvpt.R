@@ -79,10 +79,10 @@ mvpt <- function(lavaan_input,
     stop('Covariance parameters ("~~") are not allowed in the specified model input for this version of mvpt().')
   }
   
-  ## STOP: Model(s) include parameter labels
-  ## NOTE: Using '\\*' because '*' does not work at identifying models with labels
+  ## STOP: Model(s) include parameter labels or starting values
+  ## NOTE: Using '\\*' because '*' alone does not work 
   if (any(vapply(LAV_list, function(x) grepl("\\*", x), logical(1)))) {
-    stop('Model syntax includes parameter labels, which are not used in mvpt(). Labels are removed during conversion from lavaan to dagitty format. Please remove all labels from your any lavaan-formatted models and use tilde-notation for the any path argument (e.g., "Y ~ X").')
+    stop('Model syntax includes parameter labels and/or starting values, which cannot be used in mvpt(). Please remove these from your lavaan syntax and retry.')
   }
   
   ## STOP: Specified path is in not in correct tilde-notation

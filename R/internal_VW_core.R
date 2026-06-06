@@ -45,7 +45,7 @@ vw_core <- function(SEMfitted_list, path){
     pe <- parameterEstimates(fit, standardized = TRUE)
     par_names <- paste(pe$lhs, pe$op, pe$rhs, sep = "")
     vals <- pe$std.all[match(names(theta), par_names)]
-    setNames(vals, names(theta))
+    stats::setNames(vals, names(theta))
   }))
   path <- as.character(gsub(" ", "", path))
   rev_path <- paste(rev(strsplit(path, "~")[[1]]), collapse = "~")

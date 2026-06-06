@@ -8,8 +8,8 @@
 #'   \item{unfair2}{Measure of appraised unfairness (item 2).}
 #'   \item{anger1}{Measure of anger (item 1).}
 #'   \item{anger2}{Measure of anger (item 2).}
-#'   \item{rumi2}{Measure of rumination (item 1).}
-#'   \item{rumi3}{Measure of rumination (item 2).}
+#'   \item{rumi1}{Measure of rumination (item 1).}
+#'   \item{rumi2}{Measure of rumination (item 2).}
 #'   \item{Aggr}{Measure of retaliatory aggression.}
 #' }
 #'
