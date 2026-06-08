@@ -1,6 +1,6 @@
 #' mvpt: Multiverse Path Test
 #'
-#' Researcher can often face uncertainty when multiple SEMs equally explain the same data. This can be problematic when an effect (path) between two variables can be modeled in different ways. To help manage path uncertainty due to having multiple, competing models, the SEM Multiverse Path Test (MVPT) can auto-generate competing SEMs with the same specified path and test whether this one path changes across models. Significant path value changes will be traceable to alternate model specification changes.   
+#' Researchers can often face uncertainty when multiple SEMs equally explain the same data. This can be problematic when an effect (path) between two variables can be modeled in different ways. To help manage estimation uncertainty due to having multiple, competing models, the SEM Multiverse Path Test (MVPT) can auto-generate competing SEMs with the same specified path and test whether this one path changes across models. Significant path value estimation changes will be traceable to alternative model specification changes.   
 #'
 #' @details
 #' Main functions are \code{\link{mvpt}},
