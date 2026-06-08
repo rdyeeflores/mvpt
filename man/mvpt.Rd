@@ -61,5 +61,9 @@ mvpt_path2 <- mvpt(lavaan_input,
                    data = UnfairApprais, 
                    showplots = TRUE)
 mvpt_path2
+ 
 }
+}
+\seealso{
+[mvptZoom()], [mvptRank()]
 }

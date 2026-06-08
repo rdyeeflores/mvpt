@@ -18,7 +18,7 @@
 #' @param data A data frame to fit the associated SEMs, including auto-generated SEMs. 
 #' @param showplots Whether to show a parameter-free figure containing all the compared SEMs. User-provided models start at the top-left. This figure is for quick inspection of model specification differences. 
 #' @param MEC_only When given a single SEM, this determines whether model auto-generation goes beyond that model's Markov equivalence class (the space of models with equal fit metrics). In this version of mvpt(), specifying FALSE allows additionally generated models with arrows directly into the outcome variable of the tested path. 
-#' @seelaso [mvptZoom()], [mvptRank()]
+#' @seealso [mvptZoom()], [mvptRank()]
 #' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVPT components. 
 #' @examples
 #' \dontrun{
