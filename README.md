@@ -49,4 +49,7 @@ mvpt_path2 <- mvpt(lavaan_input,
                     showplots = TRUE)
 mvpt_path2 
 
+## view one model
+mvptZoom(mvpt_path1, index = 3)
+ 
 ```
