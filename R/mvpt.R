@@ -5,9 +5,10 @@
 #' @details
 #' \itemize{
 #'   \item This function can auto-generate other SEMs by only using the graphical features of a given SEM (Verma & Pearl, 1991). Auto-generated models will share the same fit statistics, though suggest differing relationships between variables. 
-#'   \item All models are fitted using maximum likelihood estimation, followed by an MVPT (chi-square) across models to determine significant value changes in the tested path. User-provided models will always be indexed first in the output ("M1"). 
-#'   \item If a user already has a set of SEMs to compare, model auto-generation can be bypassed by supplying a list() of SEMs for the lavaan_input argument.
-#'   }
+#'   \item Covariances, parameter labels, and starting values are not used. Please remove these from any model specification before running MVPT. Data must be continuous
+#'   \item Missingness and estimation are handled by maximum likelihood. An MVPT consists of a chi-square across models to determine significant value changes in the tested path. User-provided models will always be indexed first in the output ("M1"). 
+#'   \item If the user already has a set of SEMs to compare, model auto-generation can be bypassed by supplying a list() of SEMs for the lavaan_input argument.
+#'}
 #' 
 #' @usage
 #' mvpt(lavaan_input, path, data,
@@ -50,7 +51,6 @@
 #'                    data = UnfairApprais, 
 #'                    showplots = TRUE)
 #' mvpt_path2
-#'  
 #' }
 #' @export
 mvpt <- function(lavaan_input, 
@@ -68,12 +68,13 @@ mvpt <- function(lavaan_input,
   ## STOP: Model(s) generating lavaan-based error or warning
   for (i in seq_along(LAV_list)) {
     tryCatch(
-      sem(LAV_list[[i]], data = data, do.fit = TRUE), ##, auto.cov.lv.x = FALSE),
-      error = function(e) {
-        stop(conditionMessage(e), "\nError returned by lavaan. Run models and data in lavaan first, fix the issue reported, and retry mvpt() once there is no error.", call. = FALSE)},
-      warning = function(w) {
-        stop(conditionMessage(w), "\nWarning retuned by lavaan. Try running models and data directly in lavaan, reviewing, and fixing before retrying mvpt().", call. = FALSE)}
-      )
+      sem(LAV_list[[i]], data = data, missing = "ml", fixed.x = FALSE, se = "none"), ## match most all with auto_sem()
+      error = function(e)
+        stop(sprintf("%s\nError returned by lavaan [Model %d]. Run the model directly in lavaan, clear the issue, and retry mvpt().",
+            conditionMessage(e), i)),
+      warning = function(w)
+        stop(sprintf("%s\nWarning returned by lavaan [Model %d]. Run the model directly in lavaan, clear the warning, and retry mvpt().",
+            conditionMessage(w), i)))
   }
   
   ## STOP: Model(s) include covariance parameters (update pending)

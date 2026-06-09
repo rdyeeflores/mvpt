@@ -27,9 +27,10 @@ Perform an SEM multiverse path test.
 \details{
 \itemize{
   \item This function can auto-generate other SEMs by only using the graphical features of a given SEM (Verma & Pearl, 1991). Auto-generated models will share the same fit statistics, though suggest differing relationships between variables. 
-  \item All models are fitted using maximum likelihood estimation, followed by an MVPT (chi-square) across models to determine significant value changes in the tested path. User-provided models will always be indexed first in the output ("M1"). 
-  \item If a user already has a set of SEMs to compare, model auto-generation can be bypassed by supplying a list() of SEMs for the lavaan_input argument.
-  }
+  \item Covariances, parameter labels, and starting values are not used. Please remove these from any model specification before running MVPT. Data must be continuous
+  \item Missingness and estimation are handled by maximum likelihood. An MVPT consists of a chi-square across models to determine significant value changes in the tested path. User-provided models will always be indexed first in the output ("M1"). 
+  \item If the user already has a set of SEMs to compare, model auto-generation can be bypassed by supplying a list() of SEMs for the lavaan_input argument.
+}
 }
 \examples{
 \dontrun{
@@ -61,7 +62,6 @@ mvpt_path2 <- mvpt(lavaan_input,
                    data = UnfairApprais, 
                    showplots = TRUE)
 mvpt_path2
- 
 }
 }
 \seealso{
