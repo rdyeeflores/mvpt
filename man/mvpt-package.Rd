@@ -12,11 +12,12 @@ Main functions are \code{\link{mvpt}},
 \code{\link{mvptZoom}}, and \code{\link{mvptRank}}.
 }
 \author{
-\strong{Maintainer}: Ronald Yee-Flores \email{ronaldyeeflores@gmail.edu} (\href{https://orcid.org/0000-0002-7423-1608}{ORCID})
+\strong{Maintainer}: Ronald Yee-Flores \email{rdyeeflores@gmail.edu} (\href{https://orcid.org/0000-0002-7423-1608}{ORCID})
 
 Authors:
 \itemize{
   \item Edgar Merkle (\href{https://orcid.org/0000-0001-7158-0653}{ORCID})
+  \item Ellen Fitzsimmons (\href{https://orcid.org/0000-0002-0496-067X}{ORCID})
 }
 
 }

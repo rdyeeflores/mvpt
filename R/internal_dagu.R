@@ -13,13 +13,34 @@ dagu <- function(LAV_list, path, MEC_only = TRUE){
   
   ## Function separating LAV into regressions and LVs, with former turned to DAGs for FIGURE_list
   ## NOTE: Avoids flipping arrows emanating from LVs to OVs when producing MEC
-  split_syntax <- function(LAV) {
+  ## NOTE: New version collapses multi-line measures and regressions
+  if(FALSE){split_syntax <- function(LAV) {
     lines <- trimws(strsplit(LAV, "\n", fixed = TRUE)[[1]])
     lines <- lines[nzchar(lines) & !grepl("^#", lines)]  ## drop blanks + full-line comments
     LVs <- lines[grepl("=~", lines, fixed = TRUE)]
     regs <- lines[grepl("~",  lines) & !grepl("=~", lines, fixed = TRUE)]  ## "~" but not "=~"
     list(regs=regs, LVs=LVs)
+  }}
+  
+  split_syntax <- function(LAV) {
+    lines <- trimws(strsplit(LAV, "\n", fixed = TRUE)[[1]])
+    lines <- lines[nzchar(lines) & !grepl("^#", lines)]
+    # Collapse continuation lines
+    ops <- "(=~|~~|~|:=|<|>|==)"
+    collapsed <- character(0)
+    for (line in lines) {
+      if (grepl(ops, line)) {
+        collapsed <- c(collapsed, line)
+      } else if (length(collapsed) > 0) {
+        collapsed[length(collapsed)] <- paste(collapsed[length(collapsed)], line)
+      }
+    }
+    LVs  <- collapsed[grepl("=~", collapsed, fixed = TRUE)]
+    regs <- collapsed[grepl("~", collapsed) & !grepl("=~", collapsed, fixed = TRUE)]
+    list(regs = regs, LVs = LVs)
   }
+  
+  
   
   ## Function converting LAV_regressions to DAG format
   ## NOTE: Must manually remove dagitty-automated placement of exogenous covariances

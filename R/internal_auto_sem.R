@@ -25,7 +25,6 @@ auto_sem <- function(fam_lavaan_ready, data, missing = "ml", estimator = "ML"){
           fixed.x = FALSE,
           missing = missing,
           estimator = estimator,
-          auto.cov.lv.x = FALSE,
           check.gradient = FALSE),
       
       ## Warnings and messages indexed by model

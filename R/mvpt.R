@@ -70,10 +70,10 @@ mvpt <- function(lavaan_input,
     tryCatch(
       sem(LAV_list[[i]], data = data, missing = "ml", fixed.x = FALSE, se = "none"), ## match most all with auto_sem()
       error = function(e)
-        stop(sprintf("%s\nError returned by lavaan [Model %d]. Run the model directly in lavaan, clear the issue, and retry mvpt().",
+        stop(sprintf('%s\nError returned by lavaan [Model %d]. This prevented MVPT computation. Clear the referenced issue before retrying. When troubleshooting estimation issues through lavaan, try using: sem(model, data, fixed.x = FALSE, missing = "ml")',
             conditionMessage(e), i)),
       warning = function(w)
-        stop(sprintf("%s\nWarning returned by lavaan [Model %d]. Run the model directly in lavaan, clear the warning, and retry mvpt().",
+        stop(sprintf('%s\nWarning returned by lavaan [Model %d], preventing MVPT output. Clear the referenced issue before retrying. When troubleshooting estimation issues through lavaan, try using: sem(model, data, fixed.x = FALSE, missing = "ml")',
             conditionMessage(w), i)))
   }
   
