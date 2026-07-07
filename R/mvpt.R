@@ -5,22 +5,21 @@
 #' @details
 #' \itemize{
 #'   \item This function can auto-generate other SEMs by only using the graphical features of a given SEM (Verma & Pearl, 1991). Auto-generated models will share the same fit statistics, though suggest differing relationships between variables. 
-#'   \item Covariances, parameter labels, and starting values are not used. Please remove these from any model specification before running MVPT. Data must be continuous
-#'   \item Missingness and estimation are handled by maximum likelihood. An MVPT consists of a chi-square across models to determine significant value changes in the tested path. User-provided models will always be indexed first in the output ("M1"). 
+#'   \item Data must be continuous. Covariances, parameter labels, and starting values are not used, so please remove these from any model specification before running. 
+#'   \item Model fitting using the given data assumes exogenous variables are free to vary and both estimation and missingness are handled by maximum likelihood. Afterward, an MVPT consists of a chi-square across models to determine significant path value changes. User-provided models will always be indexed first in the output. 
 #'   \item If the user already has a set of SEMs to compare, model auto-generation can be bypassed by supplying a list() of SEMs for the lavaan_input argument.
 #'}
 #' 
 #' @usage
-#' mvpt(lavaan_input, path, data,
-#'   showplots = FALSE, MEC_only = TRUE)
+#' mvpt(lavaan_input, path, data, showplots = FALSE, MEC_only = TRUE)
 #' 
 #' @param lavaan_input A single SEM or list() of SEMs in lavaan syntax. For a single SEM, this function will attempt to auto-generate other models. For a list(), only the listed models will be used for testing. 
-#' @param path The path to be tested. This path must be in lavaan syntax (eg: "Y ~ X") and in any associated model specification.
-#' @param data A data frame to fit the associated SEMs, including auto-generated SEMs. 
-#' @param showplots Whether to show a parameter-free figure containing all the compared SEMs. User-provided models start at the top-left. This figure is for quick inspection of model specification differences. 
+#' @param path The path to be tested. This path must be in lavaan syntax (eg: "Y ~ X").
+#' @param data A data frame to fit user-provided and auto-generated SEMs. 
+#' @param showplots Whether to show a parameter-free figure containing all compared SEMs, with user-provided models starting the first row. This figure is for quick inspection of model specification differences. 
 #' @param MEC_only When given a single SEM, this determines whether model auto-generation goes beyond that model's Markov equivalence class (the space of models with equal fit metrics). In this version of mvpt(), specifying FALSE allows additionally generated models with arrows directly into the outcome variable of the tested path. 
 #' @seealso [mvptZoom()], [mvptRank()]
-#' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and MVPT components. 
+#' @return An object of class \code{mvpt} containing lavaan-fitted results, figures, and core MVPT components. 
 #' @examples
 #' \dontrun{
 #' 
@@ -70,10 +69,10 @@ mvpt <- function(lavaan_input,
     tryCatch(
       sem(LAV_list[[i]], data = data, missing = "ml", fixed.x = FALSE, se = "none"), ## match most all with auto_sem()
       error = function(e)
-        stop(sprintf('%s\nError returned by lavaan [Model %d]. This prevented MVPT computation. Clear the referenced issue before retrying. When troubleshooting estimation issues through lavaan, try using: sem(model, data, fixed.x = FALSE, missing = "ml")',
+        stop(sprintf('%s\nError returned by lavaan [Model %d]. This prevented MVPT computation. Clear the referenced issue before retrying. When troubleshooting estimation issues through lavaan, try using: sem(model, data, fixed.x = FALSE, missing = "ML")',
             conditionMessage(e), i)),
       warning = function(w)
-        stop(sprintf('%s\nWarning returned by lavaan [Model %d], preventing MVPT output. Clear the referenced issue before retrying. When troubleshooting estimation issues through lavaan, try using: sem(model, data, fixed.x = FALSE, missing = "ml")',
+        stop(sprintf('%s\nWarning returned by lavaan [Model %d], preventing MVPT output. Clear the referenced issue before retrying. When troubleshooting estimation issues through lavaan, try using: sem(model, data, fixed.x = FALSE, missing = "ML")',
             conditionMessage(w), i)))
   }
   

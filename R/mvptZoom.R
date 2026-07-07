@@ -50,6 +50,7 @@ mvptZoom <- function(mvpt_output, index){
   FIGURE_list <- mvpt_output$FIGURE_list
   
   cat(sprintf("\nModel %d Specification\n---------------------\n", index))
+  cat(sprintf('To replicate using lavaan directly, use this in \nsem(model, data, fixed.x = FALSE, missing = "ML")\n'))
   cat(sprintf('"\n%s\n"\n', unlist(fam_lavaan_ready[[index]])))
   cat(sprintf("\nModel %d Summary\n---------------\n", index))
   print(summary(SEMfitted_list[[index]], fit.measures = TRUE, standardized=TRUE)) 
